@@ -1,7 +1,7 @@
 Worktogether - Tell and know what your team is working on
 ============================================================
 
-* Get a mail everyday asking what di dyou do today
+* Get a mail everyday asking what did you do today
 * Send a mail everyday with your response
 * Get a mail next day with everyone's responses.
 
