@@ -4,7 +4,7 @@ from django.db import models
 class Team(models.Model):
 
     name = models.CharField(max_length=150)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
 
     def __unicode__(self):
         return self.name

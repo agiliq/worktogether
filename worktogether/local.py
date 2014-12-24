@@ -20,4 +20,5 @@ DATABASES = {
 
 INSTALLED_APPS += (
     'teamwork',
+    'sendgrid_events',
 )
