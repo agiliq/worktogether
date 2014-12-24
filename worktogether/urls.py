@@ -5,8 +5,7 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-                       url(r'^',
-                           include('teamwork.urls',
-                                   namespace="teamwork")),
+                       url(r'^sendgrid/',
+                           include('sendgrid_events.urls')),
                        url(r'^admin/',
                            include(admin.site.urls)), )
