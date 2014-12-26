@@ -2,7 +2,7 @@ import datetime
 
 from django.db import models
 from django.dispatch import receiver
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, send_mail
 from django.template import Context
 from django.template.loader import get_template
 
@@ -55,7 +55,17 @@ def receive(sender, **kwargs):
     work_obj.save()
 
 
-def send():
+def ask_team_members():
+
+    member_email_list = [each.email for each in TeamMember.objects.all()]
+    today = datetime.datetime.now().ctime()[:10]
+    send_mail("What have you done today? {0}".format(today),
+              "Tell us what did you get done today?",
+              "hello@worksummarizer.agiliq.com",
+              member_email_list)
+
+
+def send_digest():
 
     yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
     team_members = TeamMember.objects.all()
@@ -67,7 +77,7 @@ def send():
             work_list = wd[0].work_done_as_list()
         member_work.append((team_member, work_list))
     template = get_template('teamwork/email.html')
-    subject = 'Agiliq digest from {0}'.format(yesterday.ctime()[:10])
+    subject = 'Digest from {0}'.format(yesterday.ctime()[:10])
     context = Context({'member_work': member_work, 'heading': subject})
     content = template.render(context)
     msg = EmailMessage(subject, content,
