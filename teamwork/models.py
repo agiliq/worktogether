@@ -59,10 +59,11 @@ def ask_team_members():
 
     member_email_list = [each.email for each in TeamMember.objects.all()]
     today = datetime.datetime.now().ctime()[:10]
-    send_mail("What have you done today? {0}".format(today),
+    for each in member_email_list:
+        send_mail("What have you done today? {0}".format(today),
               "Tell us what did you get done today?",
               "hello@worksummarizer.agiliq.com",
-              member_email_list)
+              [each, ])
 
 
 def send_digest():
