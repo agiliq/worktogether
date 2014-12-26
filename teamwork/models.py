@@ -65,6 +65,6 @@ def send():
     subject = 'Agiliq digest from {0}'.yesterday.ctime()[:10]
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
-                       to=['team@agiliq.com',])
-    msg.content_subtype='html'
+                       to=['team@agiliq.com', ])
+    msg.content_subtype = 'html'
     msg.send()

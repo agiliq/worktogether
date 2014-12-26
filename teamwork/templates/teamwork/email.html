@@ -1,14 +1,17 @@
 <html>
 <body>
-    <h1>This is a header</h1>
-    <p>A paragraph</p>
-    {% for each in work %}
-    <ul> <h4>{{each.person}}</h4>
-        {% for line in each.work_done_as_list %}
+    <h1>{{heading}}</h1>
+    {% for each in member_work %}
+    <ul> <h2>{{each.0}}</h2>
+        {% if each.1 %}
+        {% for line in each.1 %}
             {% if line %}
                 <li>{{line}}</li>
             {% endif %}
         {% endfor %}
+        {% else %}
+                <label> No updates from {{each.0}}</label>
+        {% endif %}
     </ul>
     {% endfor %}
 </body>
