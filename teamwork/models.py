@@ -2,7 +2,7 @@ import datetime
 
 from django.db import models
 from django.dispatch import receiver
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import EmailMessage
 from django.template import Context
 from django.template.loader import get_template
 
@@ -62,7 +62,7 @@ def send():
     template = get_template('teamwork/email.html')
     context = Context({'work_list': yesterdays_work})
     content = template.render(context)
-    subject = 'Agiliq digest from {0}'.yest.ctime()[:10]
+    subject = 'Agiliq digest from {0}'.yesterday.ctime()[:10]
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
                        to=['team@agiliq.com',])
