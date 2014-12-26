@@ -23,7 +23,7 @@ INSTALLED_APPS += (
     'sendgrid_events',
 )
 
-EMAIL_HOST = 'smtp.mandrillapp.com'
+EMAIL_HOST = os.environ['EMAIL_HOST']
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_PORT = 587
