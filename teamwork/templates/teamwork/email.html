@@ -1,0 +1,15 @@
+<html>
+<body>
+    <h1>This is a header</h1>
+    <p>A paragraph</p>
+    {% for each in work %}
+    <ul> <h4>{{each.person}}</h4>
+        {% for line in each.work_done_as_list %}
+            {% if line %}
+                <li>{{line}}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</body>
+</html>
