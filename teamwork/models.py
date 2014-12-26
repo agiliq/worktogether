@@ -1,7 +1,10 @@
-from datetime import datetime
+import datetime
 
 from django.db import models
 from django.dispatch import receiver
+from django.core.mail import send_mail, EmailMessage
+from django.template import Context
+from django.template.loader import get_template
 
 from sendgrid_events.signals import sendgrid_email_received
 
@@ -20,6 +23,9 @@ class WorkDone(models.Model):
     person = models.ForeignKey(TeamMember)
     date = models.DateField(auto_now_add=True)
     work_done = models.TextField()
+
+    def work_done_as_list(self):
+        return self.work_done.split('\n')
 
     def __unicode__(self):
         return "%s, %s" % (self.person, self.date.ctime()[:10])
@@ -43,13 +49,19 @@ def receive(sender, **kwargs):
         person.name = sender_name
         person.save()
     work_tuple = WorkDone.objects.get_or_create(person=person,
-                                                date=datetime.now())
+                                                date=datetime.datetime.now())
     work_obj = work_tuple[0]
     work_obj.work_done = (work_obj.work_done + '\n' + body).strip()
     work_obj.save()
 
 
 def send():
-    # Sending out mails at the end of each day.
-    # Needs implimentation
-    pass
+
+    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+    yesterdays_work = Work.objects.filter(date=yesterday)
+    template = get_template('teamwork/email.html')
+    context = Context({'work_list': yesterdays_work})
+    content = template.render(context)
+    msg = EmailMessage(subject, content, "yk.301189@gmail.com", to=['yogesh@agiliq.com',])
+    msg.content_subtype='html'
+    msg.send()
