@@ -68,7 +68,7 @@ def send():
         member_work.append((team_member, work_list))
     template = get_template('teamwork/email.html')
     subject = 'Agiliq digest from {0}'.format(yesterday.ctime()[:10])
-    context = Context({'member_work': member_work, 'heading':subject})
+    context = Context({'member_work': member_work, 'heading': subject})
     content = template.render(context)
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
