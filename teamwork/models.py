@@ -58,11 +58,18 @@ def receive(sender, **kwargs):
 def send():
 
     yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-    yesterdays_work = WorkDone.objects.filter(date=yesterday)
+    team_members = TeamMember.objects.all()
+    member_work = []
+    for team_member in team_members:
+        work_list = []
+        wd = team_member.workdone_set.filter(date=yesterday)
+        if wd:
+            work_list = wd[0].work_done_as_list()
+        member_work.append((team_member, work_list))
     template = get_template('teamwork/email.html')
-    context = Context({'work_list': yesterdays_work})
+    subject = 'Agiliq digest from {0}'.format(yesterday.ctime()[:10])
+    context = Context({'member_work': member_work, 'heading':subject})
     content = template.render(context)
-    subject = 'Agiliq digest from {0}'.yesterday.ctime()[:10]
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
                        to=['team@agiliq.com', ])
