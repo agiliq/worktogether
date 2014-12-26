@@ -10,4 +10,3 @@ script:
 - pep8 teamwork
 - pep8 worktogether
 - pyflakes teamwork
-- pyflakes worktogether
