@@ -2,17 +2,17 @@
 <body>
     <h1>{{heading}}</h1>
     {% for each in member_work %}
-    <ul> <h2>{{each.0}}</h2>
-        {% if each.1 %}
-        {% for line in each.1 %}
-            {% if line %}
-                <li>{{line}}</li>
-            {% endif %}
-        {% endfor %}
-        {% else %}
+        <ul> <h2>{{each.0}}</h2>
+            {% if each.1 %}
+                {% for line in each.1 %}
+                    {% if line %}
+                        <li>{{line}}</li>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
                 <label> No updates from {{each.0}}</label>
-        {% endif %}
-    </ul>
+            {% endif %}
+        </ul>
     {% endfor %}
 </body>
 </html>
