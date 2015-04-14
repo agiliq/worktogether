@@ -1,1 +1,12 @@
--r requirements/local.txt
+dj-database-url==0.3.0
+dj-static==0.0.6
+Django==1.6.8
+django-toolbelt==0.0.1
+gunicorn==19.3.0
+ipdb==0.8
+ipython==2.3.1
+pep8==1.5.7
+psycopg2==2.5.4
+pyflakes==0.8.1
+sendgrid-eventhooks==0.1.1
+static3==0.5.1
