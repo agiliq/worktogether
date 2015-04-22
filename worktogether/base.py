@@ -66,7 +66,7 @@ DATABASES = {'default' : dj_database_url.config() }
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -88,3 +88,8 @@ STATICFILES_DIRS = (
 # https://warehouse.python.org/project/whitenoise/
 
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+
+CELERY_IMPORTS = ('worktogether.tasks', )
+CELERY_RESULT_BACKEND = 'amqp'
