@@ -88,9 +88,3 @@ STATICFILES_DIRS = (
 # https://warehouse.python.org/project/whitenoise/
 
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
-
-BROKER_URL = 'amqp://guest:guest@localhost:5672//'
-
-CELERY_IMPORTS = ('worktogether.tasks', )
-CELERY_RESULT_BACKEND = 'amqp'
-BROKER_POOL_LIMIT = 1
