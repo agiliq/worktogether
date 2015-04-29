@@ -12,3 +12,8 @@ Technical Details
 
 * Emails are parsed by sendgrid and https://github.com/agiliq/sendgrid-eventhooks
 * Django app parses text from email
+
+Todo
+=====================
+
+* Allow team members to customize the time at which they want to receive the email.
