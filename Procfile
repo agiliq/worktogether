@@ -1,1 +1,1 @@
-web: gunicorn worktogether.wsgi:application --log-file -
+web: gunicorn worktogether.wsgi --log-file -
