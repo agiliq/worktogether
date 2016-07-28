@@ -1,5 +1,4 @@
 -r base.txt
 ipdb==0.10.1
 ipython==5.0.0
-ipython-genutils==0.1.0
 sendgrid-eventhooks==0.1.1
