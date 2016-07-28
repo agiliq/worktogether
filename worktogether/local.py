@@ -7,6 +7,7 @@ DATABASE_URL = os.environ.get('DATABASE_URL', '')
 DB_NAME = os.environ.get('DB_NAME', '')
 DB_USER = os.environ.get('DB_USER', '')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
+DB_HOST = DATABASE_URL.split('@')[1].split(':')[0]
 
 DATABASES = {
     'default': {
@@ -14,7 +15,7 @@ DATABASES = {
         'NAME': DATABASE_URL if DATABASE_URL else DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
-        'HOST': 'localhost',
+        'HOST': DB_HOST,
         'PORT': '5432',
     }
 }
