@@ -21,7 +21,6 @@ DATABASES = {
 INSTALLED_APPS += (
     'teamwork',
     'sendgrid_events',
-    'scheduler',
 )
 
 EMAIL_HOST = os.environ['EMAIL_HOST']
@@ -29,5 +28,3 @@ EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-
-FIRST_DAY_OF_WEEK = 1
