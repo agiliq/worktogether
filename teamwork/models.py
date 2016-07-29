@@ -68,17 +68,17 @@ def ask_team_members():
 
 def send_digest():
 
-    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+    last_work_day = WorkDone.objects.last().date
     team_members = TeamMember.objects.all()
     member_work = []
     for team_member in team_members:
         work_list = []
-        wd = team_member.workdone_set.filter(date=yesterday)
+        wd = team_member.workdone_set.filter(date=last_work_day)
         if wd:
             work_list = wd[0].work_done_as_list()
         member_work.append((team_member, work_list))
     template = get_template('teamwork/email.html')
-    subject = 'Digest from {0}'.format(yesterday.ctime()[:10])
+    subject = 'Digest from {0}'.format(last_work_day.ctime()[:10])
     context = Context({'member_work': member_work, 'heading': subject})
     content = template.render(context)
     msg = EmailMessage(subject, content,
