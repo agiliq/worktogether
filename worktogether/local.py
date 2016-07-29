@@ -4,7 +4,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 DATABASE_URL = os.environ.get('DATABASE_URL', '')
-DB_NAME = os.environ.get('DB_NAME', '')
+DB_NAME = DATABASE_URL.split('/')[-1]
 DB_USER = os.environ.get('DB_USER', '')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
 DB_HOST = DATABASE_URL.split('@')[1].split(':')[0]
@@ -12,7 +12,7 @@ DB_HOST = DATABASE_URL.split('@')[1].split(':')[0]
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': DATABASE_URL if DATABASE_URL else DB_NAME,
+        'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
         'HOST': DB_HOST,
