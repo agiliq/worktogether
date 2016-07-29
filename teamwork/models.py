@@ -83,6 +83,6 @@ def send_digest():
     content = template.render(context)
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
-                       to=['team@agiliq.com', ])
+                       to=['yogesh@agiliq.com', ])
     msg.content_subtype = 'html'
     msg.send()
