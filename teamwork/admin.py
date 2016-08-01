@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import TeamMember, WorkDone
+from .models import TeamMember, WorkDone, WorkTrackerText
 
 
 class WorkDoneAdmin(admin.ModelAdmin):
@@ -9,3 +9,4 @@ class WorkDoneAdmin(admin.ModelAdmin):
 
 admin.site.register(TeamMember)
 admin.site.register(WorkDone, WorkDoneAdmin)
+admin.site.register(WorkTrackerText)
