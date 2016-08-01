@@ -22,8 +22,6 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-TEMPLATE_DEBUG = False
-
 ALLOWED_HOSTS = ['*']
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
