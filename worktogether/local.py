@@ -1,7 +1,6 @@
 from .base import *
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 DATABASE_URL = os.environ.get('DATABASE_URL', '')
 DB_NAME = DATABASE_URL.split('/')[-1]
