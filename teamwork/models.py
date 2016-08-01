@@ -44,6 +44,9 @@ class WorkTrackerText(models.Model):
 
     text = models.TextField()
 
+    def __unicode__(self):
+        return self.text
+
     def clean(self):
         validate_only_one_instance(self)
 
@@ -80,7 +83,7 @@ def ask_team_members():
         else "Tell us what did you get done today?"
     for each in member_email_list:
         send_mail("What have you done today? {0}".format(today),
-                  "{0}".format(text),
+                  "{0}".format(text.),
                   "hello@worksummarizer.agiliq.com",
                   [each, ])
 
