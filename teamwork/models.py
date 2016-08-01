@@ -3,6 +3,7 @@ import datetime
 from django.db import models
 from django.dispatch import receiver
 from django.core.mail import EmailMessage, send_mail
+from django.core.exceptions import ValidationError
 from django.template import Context
 from django.template.loader import get_template
 
