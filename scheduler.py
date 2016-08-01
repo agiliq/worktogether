@@ -13,8 +13,25 @@ h = logging.StreamHandler()
 h.setFormatter(fmt)
 log.addHandler(h)
 
-scheduler = BackgroundScheduler(timezone=utc)
-scheduler.add_job(ask_team_members, 'cron', day_of_week='mon-fri', hour=12, minute=30)
-scheduler.add_job(send_digest, 'cron', day_of_week='mon-fri', hour=3, minute=30)
+scheduler = BackgroundScheduler({
+    'apscheduler.jobstores.default': {
+        'type': 'sqlalchemy',
+        'url': 'sqlite:///jobs.sqlite'
+    },
+    'apscheduler.executors.default': {
+        'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+        'max_workers': '20'
+    },
+    'apscheduler.executors.processpool': {
+        'type': 'processpool',
+        'max_workers': '5'
+    },
+    'apscheduler.job_defaults.coalesce': 'false',
+    'apscheduler.job_defaults.max_instances': '3',
+    'apscheduler.timezone': 'Asia/Kolkata',
+    })
+
+scheduler.add_job(ask_team_members, 'cron', day_of_week='mon-fri', hour=14, minute=10)
+scheduler.add_job(send_digest, 'cron', day_of_week='mon-fri', hour=14, minute=30)
 
 scheduler.start()
