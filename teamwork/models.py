@@ -14,7 +14,7 @@ class TeamMember(models.Model):
 
     name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
-    preferred_notifying_time = models.DateTimeField(null=True, blank=True)
+    preferred_notifying_time = models.TimeField(null=True, blank=True)
 
     def __unicode__(self):
         return self.name
