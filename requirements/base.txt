@@ -4,3 +4,4 @@ Django==1.8.14
 django-annoying==0.9.0
 pep8==1.5.7
 psycopg2==2.5.4
+SQLAlchemy==1.0.14
