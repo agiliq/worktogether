@@ -25,10 +25,25 @@ class WorkDone(models.Model):
     work_done = models.TextField()
 
     def work_done_as_list(self):
-        return self.work_done.split('\n')
+        return self.work_done.replace('\n', '\r').split('\r')
 
     def __unicode__(self):
         return "%s, %s" % (self.person, self.date.ctime()[:10])
+
+
+def validate_only_one_instance(obj):
+    model = obj.__class__
+    if (model.objects.count() > 0 and
+            obj.id != model.objects.get().id):
+        raise ValidationError("Can only create 1 %s instance" % model.__name__)
+
+
+class WorkTrackerText(models.Model):
+
+    text = models.TextField()
+
+    def clean(self):
+        validate_only_one_instance(self)
 
 
 @receiver(sendgrid_email_received)
@@ -59,9 +74,10 @@ def ask_team_members():
 
     member_email_list = [each.email for each in TeamMember.objects.all()]
     today = datetime.datetime.now().ctime()[:10]
+    text = WorkTrackerText.objects.first() if WorkTrackerText.objects.any() else "Tell us what did you get done today?"
     for each in member_email_list:
         send_mail("What have you done today? {0}".format(today),
-                  "Tell us what did you get done today?",
+                  "{0}".format(text),
                   "hello@worksummarizer.agiliq.com",
                   [each, ])
 
@@ -75,7 +91,7 @@ def send_digest():
         work_list = []
         wd = team_member.workdone_set.filter(date=last_work_day)
         if wd:
-            work_list = wd[0].work_done_as_list()
+            work_list = wd.first().work_done_as_list()
         member_work.append((team_member, work_list))
     template = get_template('teamwork/email.html')
     subject = 'Digest from {0}'.format(last_work_day.ctime()[:10])
