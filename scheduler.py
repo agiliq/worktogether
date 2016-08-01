@@ -31,7 +31,7 @@ scheduler = BackgroundScheduler({
     'apscheduler.timezone': 'Asia/Kolkata',
     })
 
-scheduler.add_job(ask_team_members, 'cron', day_of_week='mon-fri', hour=14, minute=10)
-scheduler.add_job(send_digest, 'cron', day_of_week='mon-fri', hour=14, minute=30)
+scheduler.add_job(ask_team_members, 'cron', day_of_week='mon-fri', hour=15, minute=40)
+scheduler.add_job(send_digest, 'cron', day_of_week='mon-fri', hour=16, minute=00)
 
 scheduler.start()
