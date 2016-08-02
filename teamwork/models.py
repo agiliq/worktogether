@@ -62,7 +62,7 @@ def receive(sender, data=None, **kwargs):
     subject = data.get('Subject', '')
     team_mem_tuple = TeamMember.objects.get_or_create(email=sender_email)
     person = team_mem_tuple[0]
-
+    import ipdb; ipdb.set_trace()
     for each in data['Body'].split('\n'):
         if each.strip().endswith('> wrote:') or each.strip() == "--":
             break
@@ -72,8 +72,8 @@ def receive(sender, data=None, **kwargs):
                     notify_time_with_tzinfo = convert_str_to_time_with_tzinfo(each.strip())
                     person.preferred_notifying_time = notify_time_with_tzinfo
                     person.save()
-                except ValueError:
-                    pass
+                except ValueError, e:
+                    print e
             else:
                 body += each
     if team_mem_tuple[1]:
@@ -124,4 +124,4 @@ def send_digest():
 def convert_str_to_time_with_tzinfo(date_str):
     notify_time_str = date_str
     notify_time_naive = datetime.datetime.strptime(notify_time_str, '%H:%M').time()
-    notify_time_with_tzinfo = notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+    return notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
