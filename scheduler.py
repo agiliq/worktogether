@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from apscheduler.schedulers.background import BackgroundScheduler, BlockingScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.executors.pool import ProcessPoolExecutor
 
 from teamwork.models import ask_team_members, send_digest
@@ -35,6 +35,6 @@ sched = BlockingScheduler({
     'apscheduler.timezone': 'Asia/Kolkata',
 })
 
-sched.add_job(ask_team_members, 'cron', day_of_week='mon-fri', hour=16, minute=10, timezone=settings.TIME_ZONE)
-sched.add_job(send_digest, 'cron', day_of_week='mon-fri', hour=16, minute=15, timezone=settings.TIME_ZONE)
+sched.add_job(ask_team_members, 'cron', day_of_week='mon-fri', hour=17, minute=8, timezone=settings.TIME_ZONE)
+sched.add_job(send_digest, 'cron', day_of_week='mon-fri', hour=17, minute=10, timezone=settings.TIME_ZONE)
 sched.start()
