@@ -62,28 +62,24 @@ def receive(sender, data=None, **kwargs):
     subject = data.get('Subject', '')
     team_mem_tuple = TeamMember.objects.get_or_create(email=sender_email)
     person = team_mem_tuple[0]
-    if subject and 'change time' in subject.lower():
-        notify_time_str = data['Body'].strip().split('\n')[1]
-        notify_time_naive = datetime.datetime.strptime(notify_time_str, '%H:%M').time()
-        notify_time_with_tzinfo = notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
-        person.preferred_notifying_time = notify_time_with_tzinfo
-        person.save()
 
-    else:
-        for each in data['Body'].split('\n'):
-            if each.strip().endswith('> wrote:') or each.strip() == "--":
-                break
+    for each in data['Body'].split('\n'):
+        if each.strip().endswith('> wrote:') or each.strip() == "--":
+            break
+        else:
+            if subject and 'change time' in subject.lower():
+                person.preferred_notifying_time = notify_time_with_tzinfo
+                person.save()
             else:
-                if each.strip():
-                    body += each
-        if team_mem_tuple[1]:
-            person.name = sender_name
-            person.save()
-        work_tuple = WorkDone.objects.get_or_create(person=person,
-                                                    date=datetime.datetime.now())
-        work_obj = work_tuple[0]
-        work_obj.work_done = (work_obj.work_done + '\n' + body).strip()
-        work_obj.save()
+                body += each
+    if team_mem_tuple[1]:
+        person.name = sender_name
+        person.save()
+    work_tuple = WorkDone.objects.get_or_create(person=person,
+                                                date=datetime.datetime.now())
+    work_obj = work_tuple[0]
+    work_obj.work_done = (work_obj.work_done + '\n' + body).strip()
+    work_obj.save()
 
 
 def ask_team_members():
@@ -119,3 +115,9 @@ def send_digest():
                        to=['yogesh@agiliq.com', ])
     msg.content_subtype = 'html'
     msg.send()
+
+
+def convert_str_to_time_with_tzinfo(date_str):
+    notify_time_str = date_str
+    notify_time_naive = datetime.datetime.strptime(notify_time_str, '%H:%M').time()
+    notify_time_with_tzinfo = notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
