@@ -68,22 +68,22 @@ def receive(sender, data=None, **kwargs):
         notify_time_with_tzinfo = notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
         person.preferred_notifying_time = notify_time_with_tzinfo
         person.save()
-        return
 
-    for each in data['Body'].split('\n'):
-        if each.strip().endswith('> wrote:') or each.strip() == "--":
-            break
-        else:
-            if each.strip():
-                body += each
-    if team_mem_tuple[1]:
-        person.name = sender_name
-        person.save()
-    work_tuple = WorkDone.objects.get_or_create(person=person,
-                                                date=datetime.datetime.now())
-    work_obj = work_tuple[0]
-    work_obj.work_done = (work_obj.work_done + '\n' + body).strip()
-    work_obj.save()
+    else:
+        for each in data['Body'].split('\n'):
+            if each.strip().endswith('> wrote:') or each.strip() == "--":
+                break
+            else:
+                if each.strip():
+                    body += each
+        if team_mem_tuple[1]:
+            person.name = sender_name
+            person.save()
+        work_tuple = WorkDone.objects.get_or_create(person=person,
+                                                    date=datetime.datetime.now())
+        work_obj = work_tuple[0]
+        work_obj.work_done = (work_obj.work_done + '\n' + body).strip()
+        work_obj.save()
 
 
 def ask_team_members():
