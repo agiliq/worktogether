@@ -68,8 +68,12 @@ def receive(sender, data=None, **kwargs):
             break
         else:
             if subject and 'change time' in subject.lower():
-                person.preferred_notifying_time = notify_time_with_tzinfo
-                person.save()
+                try:
+                    notify_time_with_tzinfo = convert_str_to_time_with_tzinfo(each.strip())
+                    person.preferred_notifying_time = notify_time_with_tzinfo
+                    person.save()
+                except ValueError:
+                    pass
             else:
                 body += each
     if team_mem_tuple[1]:
