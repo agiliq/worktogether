@@ -1,9 +1,10 @@
-from pytz import utc
 import logging
-from apscheduler.schedulers.background import BackgroundScheduler
+
+from django.conf import settings
+from apscheduler.schedulers.background import BackgroundScheduler, BlockingScheduler
+from apscheduler.executors.pool import ProcessPoolExecutor
 
 from teamwork.models import ask_team_members, send_digest
-
 
 log = logging.getLogger('apscheduler.executors.default')
 log.setLevel(logging.DEBUG)
@@ -13,7 +14,7 @@ h = logging.StreamHandler()
 h.setFormatter(fmt)
 log.addHandler(h)
 
-scheduler = BackgroundScheduler({
+sched = BlockingScheduler({
     'apscheduler.jobstores.default': {
         'type': 'sqlalchemy',
         'url': 'sqlite:///jobs.sqlite'
@@ -26,12 +27,14 @@ scheduler = BackgroundScheduler({
         'type': 'processpool',
         'max_workers': '5'
     },
+    'executors': {
+        'default': ProcessPoolExecutor(max_workers=1)
+    },
     'apscheduler.job_defaults.coalesce': 'false',
     'apscheduler.job_defaults.max_instances': '3',
     'apscheduler.timezone': 'Asia/Kolkata',
-    })
+})
 
-scheduler.add_job(ask_team_members, 'cron', day_of_week='mon-fri', hour=15, minute=40)
-scheduler.add_job(send_digest, 'cron', day_of_week='mon-fri', hour=16, minute=00)
-
-scheduler.start()
+sched.add_job(ask_team_members, 'cron', day_of_week='mon-fri', hour=16, minute=10, timezone=settings.TIME_ZONE)
+sched.add_job(send_digest, 'cron', day_of_week='mon-fri', hour=16, minute=15, timezone=settings.TIME_ZONE)
+sched.start()
