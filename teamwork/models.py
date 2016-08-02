@@ -1,7 +1,9 @@
 import datetime
+import pytz
 
 from django.db import models
 from django.dispatch import receiver
+from django.conf import settings
 from django.core.mail import EmailMessage, send_mail
 from django.core.exceptions import ValidationError
 from django.template import Context
@@ -52,19 +54,28 @@ class WorkTrackerText(models.Model):
 
 
 @receiver(sendgrid_email_received)
-def receive(sender, **kwargs):
+def receive(sender, data=None, **kwargs):
     body = ''
-    data = kwargs.get('data')
+    data = data
     sender_name = data['Sender'].split('<')[0].strip()
     sender_email = data['Sender'].split('<')[1][:-1]
+    subject = data.get('Subject', '')
+    team_mem_tuple = TeamMember.objects.get_or_create(email=sender_email)
+    person = team_mem_tuple[0]
+    if subject and 'change time' in subject.lower():
+        notify_time_str = data['Body'].strip().split('\n')[1]
+        notify_time_naive = datetime.datetime.strptime(notify_time_str, '%H:%M').time()
+        notify_time_with_tzinfo = notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+        person.preferred_notifying_time = notify_time_with_tzinfo
+        person.save()
+        return
+
     for each in data['Body'].split('\n'):
         if each.strip().endswith('> wrote:') or each.strip() == "--":
             break
         else:
             if each.strip():
                 body += each
-    team_mem_tuple = TeamMember.objects.get_or_create(email=sender_email)
-    person = team_mem_tuple[0]
     if team_mem_tuple[1]:
         person.name = sender_name
         person.save()
