@@ -62,7 +62,9 @@ def receive(sender, data=None, **kwargs):
     subject = data.get('Subject', '')
     team_mem_tuple = TeamMember.objects.get_or_create(email=sender_email)
     person = team_mem_tuple[0]
-    import ipdb; ipdb.set_trace()
+    if team_mem_tuple[1]:
+        person.name = sender_name
+        person.save()
     for each in data['Body'].split('\n'):
         if each.strip().endswith('> wrote:') or each.strip() == "--":
             break
@@ -76,9 +78,6 @@ def receive(sender, data=None, **kwargs):
                     print e
             else:
                 body += each
-    if team_mem_tuple[1]:
-        person.name = sender_name
-        person.save()
     work_tuple = WorkDone.objects.get_or_create(person=person,
                                                 date=datetime.datetime.now())
     work_obj = work_tuple[0]
@@ -116,7 +115,7 @@ def send_digest():
     content = template.render(context)
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
-                       to=['yogesh@agiliq.com', ])
+                       to=['team@agiliq.com', ])
     msg.content_subtype = 'html'
     msg.send()
 
