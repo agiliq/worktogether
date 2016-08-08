@@ -7,7 +7,7 @@ DB_USER = os.environ.get('DB_USER', '')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
 DB_HOST = DATABASE_URL.split('@')[1].split(':')[0]
 
-ALLOWED_HOSTS = ['worktracker.agiliq.com', '139.59.20.179',]
+ALLOWED_HOSTS = ['worktracker.agiliq.com', '139.59.20.179', ]
 
 DATABASES = {
     'default': {
