@@ -1,29 +1,31 @@
 import datetime
 import pytz
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage, send_mail
 from django.db import models
 from django.dispatch import receiver
-from django.conf import settings
-from django.core.mail import EmailMessage, send_mail
-from django.core.exceptions import ValidationError
 from django.template import Context
 from django.template.loader import get_template
-
 from sendgrid_events.signals import sendgrid_email_received
 
 
 class TeamMember(models.Model):
-
     name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
     preferred_notifying_time = models.TimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        time_ = datetime.time(18, tzinfo=pytz.timezone(settings.TIME_ZONE))
+        self.preferred_notifying_time = time_
+        super(TeamMember, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
 
 
 class WorkDone(models.Model):
-
     person = models.ForeignKey(TeamMember)
     date = models.DateField(auto_now_add=True)
     work_done = models.TextField()
@@ -37,13 +39,11 @@ class WorkDone(models.Model):
 
 def validate_only_one_instance(obj):
     model = obj.__class__
-    if (model.objects.count() > 0 and
-            obj.id != model.objects.get().id):
+    if model.objects.count() > 0 and obj.id != model.objects.get().id:
         raise ValidationError("Can only create 1 %s instance" % model.__name__)
 
 
 class WorkTrackerText(models.Model):
-
     text = models.TextField()
 
     def __unicode__(self):
@@ -71,7 +71,8 @@ def receive(sender, data=None, **kwargs):
         else:
             if subject and 'change time' in subject.lower():
                 try:
-                    notify_time_with_tzinfo = convert_str_to_time_with_tzinfo(each.strip())
+                    notify_time_with_tzinfo = convert_str_to_time_with_tzinfo(
+                        each.strip())
                     person.preferred_notifying_time = notify_time_with_tzinfo
                     person.save()
                 except ValueError, e:
@@ -85,21 +86,43 @@ def receive(sender, data=None, **kwargs):
     work_obj.save()
 
 
-def ask_team_members():
+def get_members_within_timeframe(today):
+    """
+    This function take a time, in 24-hour format and returns the list of
+    members who set their preferred time of being notified in the next one
+    hour.
+    :params: - datetime
+    :return: queryset
+    """
+    time_delta = datetime.timedelta(hours=1)
+    next_time = today + time_delta
+    return TeamMember.objects.filter(
+        preferred_notifying_time__gt=today.time().replace(minute=0, second=0),
+        preferred_notifying_time__lt=next_time.time().replace(
+            minute=0, second=0))
 
-    member_email_list = [each.email for each in TeamMember.objects.all()]
-    today = datetime.datetime.now().ctime()[:10]
-    text = WorkTrackerText.objects.first() if WorkTrackerText.objects.exists() \
-        else "Tell us what did you get done today?"
+
+def ask_team_members():
+    """
+    Send out emails to each TeamMember asking them to send their updates for
+    today by email.
+    :return: None
+    """
+    today = datetime.datetime.now(pytz.timezone(settings.TIME_ZONE))
+    member_email_list = get_members_within_timeframe(today)
+
+    if WorkTrackerText.objects.exists():
+        text = WorkTrackerText.objects.first()
+    else:
+        text = "Tell us what did you get done today?"
     for each in member_email_list:
-        send_mail("What have you done today? {0}".format(today),
+        send_mail("What have you done today? {0}".format(today.ctime()[:10]),
                   "{0}".format(text),
                   "hello@worksummarizer.agiliq.com",
                   [each, ])
 
 
 def send_digest():
-
     last_work_day = WorkDone.objects.last().date
     team_members = TeamMember.objects.all()
     member_work = []
@@ -122,5 +145,6 @@ def send_digest():
 
 def convert_str_to_time_with_tzinfo(date_str):
     notify_time_str = date_str
-    notify_time_naive = datetime.datetime.strptime(notify_time_str, '%H:%M').time()
+    notify_time_naive = datetime.datetime.strptime(notify_time_str,
+                                                   '%H:%M').time()
     return notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
