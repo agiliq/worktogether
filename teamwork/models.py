@@ -17,7 +17,7 @@ class TeamMember(models.Model):
     preferred_notifying_time = models.TimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        time_ = datetime.time(18, tzinfo=pytz.timezone(settings.TIME_ZONE))
+        time_ = datetime.time(18, 10, tzinfo=pytz.timezone(settings.TIME_ZONE))
         self.preferred_notifying_time = time_
         super(TeamMember, self).save(*args, **kwargs)
 
