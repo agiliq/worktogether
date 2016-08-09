@@ -8,5 +8,5 @@ install:
 
 script:
 - pep8 teamwork
-- pep8 worktogether
+- pep8 wrktogether
 - pyflakes teamwork

@@ -22,6 +22,7 @@ DATABASES = {
 INSTALLED_APPS += (
     'teamwork',
     'sendgrid_events',
+    'django_extensions',
 )
 
 EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
