@@ -17,8 +17,9 @@ class TeamMember(models.Model):
     preferred_notifying_time = models.TimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        time_ = datetime.time(18, 10, tzinfo=pytz.timezone(settings.TIME_ZONE))
-        self.preferred_notifying_time = time_
+        if not self.pk:
+            time_ = datetime.time(18, 10, tzinfo=pytz.timezone(settings.TIME_ZONE))
+            self.preferred_notifying_time = time_
         super(TeamMember, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -144,7 +145,5 @@ def send_digest():
 
 
 def convert_str_to_time_with_tzinfo(date_str):
-    notify_time_str = date_str
-    notify_time_naive = datetime.datetime.strptime(notify_time_str,
-                                                   '%H:%M').time()
+    notify_time_naive = datetime.datetime.strptime(date_str, '%H:%M')
     return notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
