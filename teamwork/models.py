@@ -18,7 +18,8 @@ class TeamMember(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            time_ = datetime.time(18, 10, tzinfo=pytz.timezone(settings.TIME_ZONE))
+            time_ = datetime.time(18, 10,
+                                  tzinfo=pytz.timezone(settings.TIME_ZONE))
             self.preferred_notifying_time = time_
         super(TeamMember, self).save(*args, **kwargs)
 
@@ -95,12 +96,12 @@ def get_members_within_timeframe(today):
     :params: - datetime
     :return: queryset
     """
+    today = today.time().replace(minute=0, second=0)
     time_delta = datetime.timedelta(hours=1)
     next_time = today + time_delta
     return TeamMember.objects.filter(
-        preferred_notifying_time__gt=today.time().replace(minute=0, second=0),
-        preferred_notifying_time__lt=next_time.time().replace(
-            minute=0, second=0))
+        preferred_notifying_time__gt=today.time(),
+        preferred_notifying_time__lt=next_time.time())
 
 
 def ask_team_members():
@@ -110,14 +111,13 @@ def ask_team_members():
     :return: None
     """
     today = datetime.datetime.now(pytz.timezone(settings.TIME_ZONE))
-    member_email_list = TeamMember.objects.all()
+    member_email_list = get_members_within_timeframe(today)
 
     if WorkTrackerText.objects.exists():
         text = WorkTrackerText.objects.first()
     else:
         text = "Tell us what did you get done today?"
-    import ipdb;ipdb.set_trace()
-    mail_list =[]
+    mail_list = []
     for each in member_email_list:
         mail_list.append(
             ("What have you done today? {0}".format(today.ctime()[:10]),
