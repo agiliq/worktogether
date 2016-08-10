@@ -96,7 +96,7 @@ def get_members_within_timeframe(today):
     :params: - datetime
     :return: queryset
     """
-    today = today.time().replace(minute=0, second=0)
+    today = today.replace(minute=0, second=0)
     time_delta = datetime.timedelta(hours=1)
     next_time = today + time_delta
     return TeamMember.objects.filter(
