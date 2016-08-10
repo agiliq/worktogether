@@ -3,7 +3,7 @@ import pytz
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMessage, send_mail
+from django.core.mail import EmailMessage, send_mass_mail
 from django.db import models
 from django.dispatch import receiver
 from django.template import Context
@@ -110,17 +110,21 @@ def ask_team_members():
     :return: None
     """
     today = datetime.datetime.now(pytz.timezone(settings.TIME_ZONE))
-    member_email_list = get_members_within_timeframe(today)
+    member_email_list = TeamMember.objects.all()
 
     if WorkTrackerText.objects.exists():
         text = WorkTrackerText.objects.first()
     else:
         text = "Tell us what did you get done today?"
+    import ipdb;ipdb.set_trace()
+    mail_list =[]
     for each in member_email_list:
-        send_mail("What have you done today? {0}".format(today.ctime()[:10]),
-                  "{0}".format(text),
-                  "hello@worksummarizer.agiliq.com",
-                  [each, ])
+        mail_list.append(
+            ("What have you done today? {0}".format(today.ctime()[:10]),
+             "{0}".format(text),
+             "hello@worksummarizer.agiliq.com",
+             [each.email, ]))
+    send_mass_mail((tuple(mail_list)))
 
 
 def send_digest():
