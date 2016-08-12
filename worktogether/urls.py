@@ -8,7 +8,9 @@ urlpatterns = patterns('',
                        url(r'^sendgrid/',
                            include('sendgrid_events.urls')),
                        url(r'^admin/',
-                           include(admin.site.urls)), )
+                           include(admin.site.urls)),
+                       url(r'^',
+                           include('teamwork.urls')), )
 
 urlpatterns += patterns('',
                         (r'^static/(?P<path>.*)$',
