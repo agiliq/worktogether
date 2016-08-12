@@ -27,16 +27,20 @@ class TeamMember(models.Model):
         return self.name
 
 
-class WorkDone(models.Model):
+class WorkDay(models.Model):
     person = models.ForeignKey(TeamMember)
     date = models.DateField(auto_now_add=True)
-    work_done = models.TextField()
-
-    def work_done_as_list(self):
-        return self.work_done.replace('\n', '\r').split('\r')
 
     def __unicode__(self):
         return "%s, %s" % (self.person, self.date.ctime()[:10])
+
+
+class Task(models.Model):
+    day = models.ForeignKey(WorkDay)
+    task = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return "{}".format(self.day)
 
 
 def validate_only_one_instance(obj):
@@ -57,7 +61,6 @@ class WorkTrackerText(models.Model):
 
 @receiver(sendgrid_email_received)
 def receive(sender, data=None, **kwargs):
-    body = ''
     data = data
     sender_name = data['Sender'].split('<')[0].strip()
     sender_email = data['Sender'].split('<')[1][:-1]
@@ -68,7 +71,7 @@ def receive(sender, data=None, **kwargs):
         person.name = sender_name
         person.save()
     for each in data['Body'].split('\n'):
-        if each.strip().endswith('> wrote:') or each.strip() == "--":
+        if each.strip().endswith('> wrote:') or each.strip() == '--':
             break
         else:
             if subject and 'change time' in subject.lower():
@@ -80,12 +83,9 @@ def receive(sender, data=None, **kwargs):
                 except ValueError, e:
                     print e
             else:
-                body += each
-    work_tuple = WorkDone.objects.get_or_create(person=person,
-                                                date=datetime.datetime.now())
-    work_obj = work_tuple[0]
-    work_obj.work_done = (work_obj.work_done + '\n' + body).strip()
-    work_obj.save()
+                work_day, created = WorkDay.objects.get_or_create(
+                    person=person, date=datetime.datetime.now())
+                Task.objects.create(day=work_day, task=each.strip())
 
 
 def get_members_within_timeframe(today):
@@ -128,14 +128,14 @@ def ask_team_members():
 
 
 def send_digest():
-    last_work_day = WorkDone.objects.last().date
+    last_work_day = WorkDay.objects.last().date
     team_members = TeamMember.objects.all()
     member_work = []
     for team_member in team_members:
-        work_list = []
-        wd = team_member.workdone_set.filter(date=last_work_day)
-        if wd:
-            work_list = wd.first().work_done_as_list()
+        work_day = WorkDay.objects.get(person=team_member,
+                                       date=last_work_day)
+        tasks = Task.objects.filter(day=work_day)
+        work_list = [task.task for task in tasks]
         member_work.append((team_member, work_list))
     template = get_template('teamwork/email.html')
     subject = 'Digest from {0}'.format(last_work_day.ctime()[:10])
@@ -143,7 +143,7 @@ def send_digest():
     content = template.render(context)
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
-                       to=['team@agiliq.com', ])
+                       to=['yogesh@agiliq.com', ])
     msg.content_subtype = 'html'
     msg.send()
 
