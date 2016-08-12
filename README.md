@@ -24,7 +24,24 @@ The keys in 'data' dict are:
 * Subject
 * Body
 
+Setup
+=============
+
+To setup and start using this project, follow the steps:
+* Clone this repo to your local drive.
+* Create a virtualenv.
+* Install the requirements in requirments/local.txt.
+* Setup database for the project.
+* Fill the environment variables mentioned in .env file.
+* Export the .env file `$ source .env`
+
+Usage
+==============
+* There are two management commands `./manage.py ask_members` and `./manage.py send_digest`
+* Create bash scripts to run the commands on terminal.
+* Setup cron jobs to execute these scripts at the desired timings.
+
 Todo
 =====================
 
-* Allow team members to customize the time at which they want to receive the email.
+* Setup front-end to allow members of organization to modify their updates and view all the progess at on place.
