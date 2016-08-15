@@ -1,11 +1,11 @@
-Worktogether - Tell and know what your team is working on
+Worktogether - Simple daily team checkins
 ============================================================
 
-* Get a mail everyday asking what did you do today
-* Send a mail everyday with your response
-* Get a mail next day with everyone's responses.
+* Get a mail at the endof the day asking what you did today
+* Send a mail to worktogether with your response
+* Get a mail next day with everyone's responses
 
-Inspired by idonethis.com
+Inspired by [idonethis.com](http://idonethis.com) and [Status Hero](https://statushero.com/)
 
 Technical Details
 ====================
