@@ -41,6 +41,11 @@ Usage
 * Create bash scripts to run the commands on terminal.
 * Setup cron jobs to execute these scripts at the desired timings.
 
+License
+=======
+
+MIT
+
 Todo
 =====================
 
