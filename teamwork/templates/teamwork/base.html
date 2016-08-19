@@ -4,19 +4,19 @@
 <head>
 <title>Work Tracker</title>
     <!-- Latest compiled and minified CSS -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
 
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-theme.min.css' %}">
 
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
-    <script src='{% static "js.cookie.js"%}'></script>
-    <script src='{% static "moment-with-locales.min.js"%}'></script>
-    <script src='{% static "moment-timezone-with-data.min.js"%}'></script>
+    <script src='{% static "js/js.cookie.js" %}'></script>
+    <script src='{% static "js/moment-with-locales.min.js" %}'></script>
+    <script src='{% static "js/moment-timezone-with-data.min.js" %}'></script>
 
 </head>
 
@@ -29,30 +29,8 @@
                 <div class="col-md-2">
                     <div id="datepicker"></div>
                 </div>
-                <div class="col-md-10">
-                    {% for key, value in summary.items %}
-                        <form method="post" action="/">
-                            <ul class="row">
-                                <h4> {{ key.name }}</h4>
-                                {% if value %}
-                                    {% for row in value %}
-                                        <li>
-                                            {% if row.task %}
-                                                {{ row.task }}
-                                                <a class="glyphicon glyphicon-pencil" id="edit" data-id="{{ row.id }}" href="#"></a>
-                                                <a class="glyphicon glyphicon-trash" id="delete" data-id="{{ row.id }}" href="#"></a>
-                                            {% else %}
-                                                No updates for today.
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                    <form method="post" >
-                                        <input type="text" placeholder="Enter your tasks here."/>
-                                    </form>
-                                {% endif %}
-                            </ul>
-                        </form>
-                    {% endfor %}
+                <div class="col-md-10 work-done">
+                  {% include 'teamwork/member_updates.html' with summary=summary %}
                 </div>
             </div>
         </div>
@@ -60,22 +38,21 @@
 
     <script type="text/javascript">
         $(function () {
-        moment().tz("America/Los_Angeles").format();
-        $('#datepicker').datepicker({
-        inline: true,
-        sideBySide: true,
-        viewDate: true,
-        locale: 'in',
-        format: "dd/mm/yyyy",
-        todayHighlight: true
-        }).on('changeDate', function(e) {
-            console.log(e);
-            date = moment.tz(e.date, 'Asia/Kolkata')
-            date_string = date._d.toJSON().slice(0,10)
-            console.log(date_string);
-            window.location = "/date/" + date_string;
-        });
-        console.log('blah');
+            moment().tz("America/Los_Angeles").format();
+            $('#datepicker').datepicker({
+            inline: true,
+            sideBySide: true,
+            viewDate: true,
+            locale: 'in',
+            format: "dd/mm/yyyy",
+            todayHighlight: true
+            }).on('changeDate', function(e) {
+                console.log(e);
+                date = moment.tz(e.date, 'Asia/Kolkata')
+                date_string = date._d.toJSON().slice(0,10)
+                console.log(date_string);
+                window.location = "/date/" + date_string;
+            });
         });
     </script>
     <!--<script>-->
@@ -96,19 +73,23 @@
     <!--</script>-->
     <script type="text/javascript">
 
-        $('a#edit').click(function (data) {
+        $('a.edit').click(function (data) {
             var task_id = data.target.dataset.id;
+            var text = $(this).parent().text();
             var csrftoken = Cookies.get('csrftoken');
             $.ajax({
                 url : "{% url 'edit_task' %}",
                 type: "POST",
-                data : {id:task_id,
+                data : {id: task_id,
                         csrf_token: csrftoken
                 },
                 dataType: "json",
                 success: function(data, textStatus, jqXHR)
                 {
-                    console.log(textStatus);
+                    var text = $("#edit"+data.id).parent().text();
+                    var tag = "<input value='"+text.trim()+"'/>";
+                    $('#edit'+data.id).parent().html(tag);
+                    console.log(text);
                 },
                 error: function (jqXHR, textStatus, errorThrown)
                 {
@@ -119,7 +100,6 @@
     </script>
     <script type="text/javascript">
         $('a#delete').click(function (data) {
-            debugger;
             var task_id = data.target.dataset.id;
             var csrftoken = Cookies.get('csrftoken');
             $.ajax({
@@ -130,7 +110,8 @@
                 },
                 success: function(data, textStatus, jqXHR)
                 {
-                    console.log('success');
+                    console.log(data);
+                    $(".work-done").load("{% static 'teamwork/member_updates.html' %}" );
                 },
                 error: function (jqXHR, textStatus, errorThrown)
                 {
@@ -139,9 +120,8 @@
             });
         });
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.css"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.css.map"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+    <script src="{% static 'css/bootstrap-datepicker3.css' %}"></script>
+    <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
 </body>
 
 </html>
