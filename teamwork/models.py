@@ -162,7 +162,8 @@ def clean_message_body(body):
     body = body.split('\n')
     cleaned_data = []
     for each in body:
-        if each.startswith('>'):
+        if (each.startswith('>') or each.strip() == '--' or
+            'thank' in each.lower():
             break
         elif each.strip() and not (each.strip().endswith('wrote:') or
                                    '@' in each):
