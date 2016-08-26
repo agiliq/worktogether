@@ -27,16 +27,24 @@ class TeamMember(models.Model):
         return self.name
 
 
-class WorkDone(models.Model):
+class WorkDay(models.Model):
     person = models.ForeignKey(TeamMember)
-    date = models.DateField(auto_now_add=True)
-    work_done = models.TextField()
+    date = models.DateField(editable=False)
 
-    def work_done_as_list(self):
-        return self.work_done.replace('\n', '\r').split('\r')
+    def save(self, *args, **kwargs):
+        self.date = kwargs.get('date', datetime.datetime.now().date())
+        super(WorkDay, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return "%s, %s" % (self.person, self.date.ctime()[:10])
+
+
+class Task(models.Model):
+    day = models.ForeignKey(WorkDay)
+    task = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return "{}".format(self.day)
 
 
 def validate_only_one_instance(obj):
@@ -57,35 +65,19 @@ class WorkTrackerText(models.Model):
 
 @receiver(sendgrid_email_received)
 def receive(sender, data=None, **kwargs):
-    body = ''
     data = data
     sender_name = data['Sender'].split('<')[0].strip()
     sender_email = data['Sender'].split('<')[1][:-1]
     subject = data.get('Subject', '')
-    team_mem_tuple = TeamMember.objects.get_or_create(email=sender_email)
-    person = team_mem_tuple[0]
-    if team_mem_tuple[1]:
+    team_mem, created = TeamMember.objects.get_or_create(email=sender_email)
+    person = team_mem
+    if created:
         person.name = sender_name
         person.save()
-    for each in data['Body'].split('\n'):
-        if each.strip().endswith('> wrote:') or each.strip() == "--":
-            break
-        else:
-            if subject and 'change time' in subject.lower():
-                try:
-                    notify_time_with_tzinfo = convert_str_to_time_with_tzinfo(
-                        each.strip())
-                    person.preferred_notifying_time = notify_time_with_tzinfo
-                    person.save()
-                except ValueError, e:
-                    print e
-            else:
-                body += each
-    work_tuple = WorkDone.objects.get_or_create(person=person,
-                                                date=datetime.datetime.now())
-    work_obj = work_tuple[0]
-    work_obj.work_done = (work_obj.work_done + '\n' + body).strip()
-    work_obj.save()
+    process_data(subject, data['Body'], person)
+    # work_day, created = WorkDay.objects.get_or_create(
+    #     person=person, date=datetime.datetime.now())
+    # Task.objects.create(day=work_day, task=each.strip())
 
 
 def get_members_within_timeframe(today):
@@ -128,14 +120,14 @@ def ask_team_members():
 
 
 def send_digest():
-    last_work_day = WorkDone.objects.last().date
+    last_work_day = WorkDay.objects.last().date
     team_members = TeamMember.objects.all()
     member_work = []
     for team_member in team_members:
-        work_list = []
-        wd = team_member.workdone_set.filter(date=last_work_day)
-        if wd:
-            work_list = wd.first().work_done_as_list()
+        work_day = WorkDay.objects.get(person=team_member,
+                                       date=last_work_day)
+        tasks = Task.objects.filter(day=work_day)
+        work_list = [task.task for task in tasks]
         member_work.append((team_member, work_list))
     template = get_template('teamwork/email.html')
     subject = 'Digest from {0}'.format(last_work_day.ctime()[:10])
@@ -143,7 +135,7 @@ def send_digest():
     content = template.render(context)
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
-                       to=['team@agiliq.com', ])
+                       to=['yogesh@agiliq.com', ])
     msg.content_subtype = 'html'
     msg.send()
 
@@ -151,3 +143,49 @@ def send_digest():
 def convert_str_to_time_with_tzinfo(date_str):
     notify_time_naive = datetime.datetime.strptime(date_str, '%H:%M')
     return notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+
+
+def process_data(subject, body, person):
+    body = clean_message_body(body)
+    if subject.lower == 'change time':
+        adjust_member_notification_time(person, body)
+    elif subject.startswith('Digest from'):
+        handle_past_tasks(person, body, subject[-10:])
+    else:
+        work_day, created = WorkDay.objects.get_or_create(
+            person=person, date=datetime.datetime.now())
+        [Task.objects.create(day=work_day, task=each.strip())
+            for each in body]
+
+
+def clean_message_body(body):
+    body = body.split('\n')
+    cleaned_data = []
+    for each in body:
+        if each.startswith('>'):
+            break
+        elif each.strip() and not (each.strip().endswith('wrote:') or
+                                   '@' in each):
+            cleaned_data.append(each)
+    return cleaned_data
+
+
+def adjust_member_notification_time(person, body):
+    for each in body:
+        try:
+            notify_time_with_tzinfo = convert_str_to_time_with_tzinfo(
+                each.strip())
+            person.preferred_notifying_time = notify_time_with_tzinfo
+            person.save()
+        except ValueError:
+            pass
+
+
+def handle_past_tasks(person, task, date_str):
+    digest_date = datetime.datetime.strptime(
+        date_str.strip(), "%a %b %d").replace(
+            year=datetime.datetime.now().year)
+    work_day, created = WorkDay.objects.get_or_create(
+        person=person, date=digest_date)
+    WorkDay.objects.filter(pk=work_day.pk).update(date=digest_date)
+    [Task.objects.create(day=work_day, task=each.strip()) for each in task]

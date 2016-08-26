@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Work Tracker</title>
+    <!-- Latest compiled and minified CSS -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap-theme.min.css' %}">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+    <script src='{% static "js/js.cookie.js" %}'></script>
+    <script src='{% static "js/moment-with-locales.min.js" %}'></script>
+    <script src='{% static "js/moment-timezone-with-data.min.js" %}'></script>
+
+</head>
+
+<body>
+    <h1>{{ "%s"|stringformat:'15' }}</h1>
+
+    <div style="overflow">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <div id="datepicker"></div>
+                </div>
+                <div class="col-md-10 work-done">
+                  {% include 'teamwork/member_updates.html' with summary=summary %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            moment().tz("America/Los_Angeles").format();
+            $('#datepicker').datepicker({
+            inline: true,
+            sideBySide: true,
+            viewDate: true,
+            locale: 'in',
+            format: "dd/mm/yyyy",
+            todayHighlight: true
+            }).on('changeDate', function(e) {
+                console.log(e);
+                date = moment.tz(e.date, 'Asia/Kolkata')
+                date_string = date._d.toJSON().slice(0,10)
+                console.log(date_string);
+                window.location = "/date/" + date_string;
+            });
+        });
+    </script>
+    <!--<script>-->
+        <!--$('form').on('submit',function(e){-->
+            <!--debugger;-->
+            <!--e.preventDefault();-->
+            <!--$.ajax({-->
+                <!--type     : "POST",-->
+                <!--cache    : false,-->
+                <!--url      : $(this).attr('action'),-->
+                <!--data     : $(this).serialize(),-->
+                <!--success  : function(data) {-->
+                    <!--$(".printArea").empty().append(data).css('visibility','visible');-->
+                <!--}-->
+            <!--});-->
+
+        <!--});-->
+    <!--</script>-->
+    <script type="text/javascript">
+
+        $('a.edit').click(function (data) {
+            var task_id = data.target.dataset.id;
+            var text = $(this).parent().text();
+            var csrftoken = Cookies.get('csrftoken');
+            $.ajax({
+                url : "{% url 'edit_task' %}",
+                type: "POST",
+                data : {id: task_id,
+                        csrf_token: csrftoken
+                },
+                dataType: "json",
+                success: function(data, textStatus, jqXHR)
+                {
+                    var text = $("#edit"+data.id).parent().text();
+                    var tag = "<input value='"+text.trim()+"'/>";
+                    $('#edit'+data.id).parent().html(tag);
+                    console.log(text);
+                },
+                error: function (jqXHR, textStatus, errorThrown)
+                {
+                    console.log('Error');
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $('a#delete').click(function (data) {
+            var task_id = data.target.dataset.id;
+            var csrftoken = Cookies.get('csrftoken');
+            $.ajax({
+                url : "{% url 'remove_task' %}",
+                type: "post",
+                data : {id: task_id,
+                        csrf_token: csrftoken
+                },
+                success: function(data, textStatus, jqXHR)
+                {
+                    console.log(data);
+                    $(".work-done").load("{% static 'teamwork/member_updates.html' %}" );
+                },
+                error: function (jqXHR, textStatus, errorThrown)
+                {
+                    console.log('Error' + errorThrown);
+                }
+            });
+        });
+    </script>
+    <script src="{% static 'css/bootstrap-datepicker3.css' %}"></script>
+    <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+</body>
+
+</html>
