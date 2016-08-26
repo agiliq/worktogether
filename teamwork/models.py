@@ -146,7 +146,6 @@ def convert_str_to_time_with_tzinfo(date_str):
 
 
 def process_data(subject, body, person):
-    tasks = []
     body = clean_message_body(body)
     if subject.lower == 'change time':
         adjust_member_notification_time(person, body)

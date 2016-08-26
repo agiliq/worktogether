@@ -16,7 +16,8 @@ from .models import TeamMember, WorkDay, Task
 def member_work_view(request, date=None):
     if not date:
         date = datetime.datetime.now()
-        return redirect(reverse('day_summary', kwargs={'date': str(date)[:10]}, ))
+        return redirect(reverse('day_summary',
+                                kwargs={'date': str(date)[:10]}, ))
     date = datetime.datetime.strptime(date, "%Y-%m-%d")
     team = TeamMember.objects.all()
     work_day = WorkDay.objects.filter(date=date)
