@@ -1,6 +1,7 @@
 import datetime
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.context_processors import csrf
 from django.shortcuts import render, redirect
@@ -11,10 +12,12 @@ from django.http import HttpResponse
 from .models import TeamMember, WorkDay, Task
 
 
+@login_required
 def member_work_view(request, date=None):
     if not date:
         date = datetime.datetime.now()
-        return redirect(reverse('day_summary', kwargs={'date': str(date)[:10]}, ))
+        return redirect(reverse('day_summary',
+                                kwargs={'date': str(date)[:10]}, ))
     date = datetime.datetime.strptime(date, "%Y-%m-%d")
     team = TeamMember.objects.all()
     work_day = WorkDay.objects.filter(date=date)
@@ -22,7 +25,7 @@ def member_work_view(request, date=None):
     for member in team:
         try:
             day = work_day.get(person=member)
-            tasks = Task.objects.filter(day=day)
+            tasks = Task.objects.filter(day=day).order_by('id')
             summary[member] = tasks
         except ObjectDoesNotExist as e:
             print e

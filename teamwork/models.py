@@ -29,7 +29,11 @@ class TeamMember(models.Model):
 
 class WorkDay(models.Model):
     person = models.ForeignKey(TeamMember)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(editable=False)
+
+    def save(self, *args, **kwargs):
+        self.date = kwargs.get('date', datetime.datetime.now().date())
+        super(WorkDay, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return "%s, %s" % (self.person, self.date.ctime()[:10])
@@ -65,27 +69,15 @@ def receive(sender, data=None, **kwargs):
     sender_name = data['Sender'].split('<')[0].strip()
     sender_email = data['Sender'].split('<')[1][:-1]
     subject = data.get('Subject', '')
-    team_mem_tuple = TeamMember.objects.get_or_create(email=sender_email)
-    person = team_mem_tuple[0]
-    if team_mem_tuple[1]:
+    team_mem, created = TeamMember.objects.get_or_create(email=sender_email)
+    person = team_mem
+    if created:
         person.name = sender_name
         person.save()
-    for each in data['Body'].split('\n'):
-        if each.strip().endswith('> wrote:') or each.strip() == '--':
-            break
-        else:
-            if subject and 'change time' in subject.lower():
-                try:
-                    notify_time_with_tzinfo = convert_str_to_time_with_tzinfo(
-                        each.strip())
-                    person.preferred_notifying_time = notify_time_with_tzinfo
-                    person.save()
-                except ValueError, e:
-                    print e
-            else:
-                work_day, created = WorkDay.objects.get_or_create(
-                    person=person, date=datetime.datetime.now())
-                Task.objects.create(day=work_day, task=each.strip())
+    process_data(subject, data['Body'], person)
+    # work_day, created = WorkDay.objects.get_or_create(
+    #     person=person, date=datetime.datetime.now())
+    # Task.objects.create(day=work_day, task=each.strip())
 
 
 def get_members_within_timeframe(today):
@@ -151,3 +143,49 @@ def send_digest():
 def convert_str_to_time_with_tzinfo(date_str):
     notify_time_naive = datetime.datetime.strptime(date_str, '%H:%M')
     return notify_time_naive.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+
+
+def process_data(subject, body, person):
+    body = clean_message_body(body)
+    if subject.lower == 'change time':
+        adjust_member_notification_time(person, body)
+    elif subject.startswith('Digest from'):
+        handle_past_tasks(person, body, subject[-10:])
+    else:
+        work_day, created = WorkDay.objects.get_or_create(
+            person=person, date=datetime.datetime.now())
+        [Task.objects.create(day=work_day, task=each.strip())
+            for each in body]
+
+
+def clean_message_body(body):
+    body = body.split('\n')
+    cleaned_data = []
+    for each in body:
+        if each.startswith('>'):
+            break
+        elif each.strip() and not (each.strip().endswith('wrote:') or
+                                   '@' in each):
+            cleaned_data.append(each)
+    return cleaned_data
+
+
+def adjust_member_notification_time(person, body):
+    for each in body:
+        try:
+            notify_time_with_tzinfo = convert_str_to_time_with_tzinfo(
+                each.strip())
+            person.preferred_notifying_time = notify_time_with_tzinfo
+            person.save()
+        except ValueError:
+            pass
+
+
+def handle_past_tasks(person, task, date_str):
+    digest_date = datetime.datetime.strptime(
+        date_str.strip(), "%a %b %d").replace(
+            year=datetime.datetime.now().year)
+    work_day, created = WorkDay.objects.get_or_create(
+        person=person, date=digest_date)
+    WorkDay.objects.filter(pk=work_day.pk).update(date=digest_date)
+    [Task.objects.create(day=work_day, task=each.strip()) for each in task]
