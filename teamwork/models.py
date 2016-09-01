@@ -124,11 +124,12 @@ def send_digest():
     team_members = TeamMember.objects.all()
     member_work = []
     for team_member in team_members:
-        work_day = WorkDay.objects.get(person=team_member,
+        work_day = WorkDay.objects.filter(person=team_member,
                                        date=last_work_day)
-        tasks = Task.objects.filter(day=work_day)
-        work_list = [task.task for task in tasks]
-        member_work.append((team_member, work_list))
+        if work_day:
+            tasks = Task.objects.filter(day=work_day)
+            work_list = [task.task for task in tasks]
+            member_work.append((team_member, work_list))
     template = get_template('teamwork/email.html')
     subject = 'Digest from {0}'.format(last_work_day.ctime()[:10])
     context = Context({'member_work': member_work, 'heading': subject})
