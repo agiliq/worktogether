@@ -120,7 +120,8 @@ def ask_team_members():
 
 
 def send_digest():
-    last_work_day = WorkDay.objects.last().date
+    last_work_date = datetime.datetime.now() - datetime.timedelta(days=1)
+    last_work_day = last_work_date.date()
     team_members = TeamMember.objects.all()
     member_work = []
     for team_member in team_members:
@@ -138,7 +139,7 @@ def send_digest():
     content = template.render(context)
     msg = EmailMessage(subject, content,
                        "hello@worksummarizer.agiliq.com",
-                       to=['team@agiliq.com', ])
+                       to=['yogesh@agiliq.com', ])
     msg.content_subtype = 'html'
     msg.send()
 
