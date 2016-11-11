@@ -10,6 +10,7 @@
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="{% static 'css/bootstrap-theme.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.css' %}">
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
@@ -17,6 +18,7 @@
     <script src='{% static "js/js.cookie.js" %}'></script>
     <script src='{% static "js/moment-with-locales.min.js" %}'></script>
     <script src='{% static "js/moment-timezone-with-data.min.js" %}'></script>
+    <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
 
 </head>
 
@@ -37,91 +39,109 @@
     </div>
 
     <script type="text/javascript">
-        $(function () {
+        function initDatePicker() {
             moment().tz("America/Los_Angeles").format();
             $('#datepicker').datepicker({
-            inline: true,
-            sideBySide: true,
-            viewDate: true,
-            locale: 'in',
-            format: "dd/mm/yyyy",
-            todayHighlight: true
+                inline: true,
+                sideBySide: true,
+                viewDate: true,
+                locale: 'in',
+                format: "dd/mm/yyyy",
+                todayHighlight: true
             }).on('changeDate', function(e) {
                 console.log(e);
-                date = moment.tz(e.date, 'Asia/Kolkata')
-                date_string = date._d.toJSON().slice(0,10)
+                date = moment.tz(e.date, 'Asia/Kolkata');
+                date_string = date._d.toJSON().slice(0,10);
                 console.log(date_string);
                 window.location = "/date/" + date_string;
             });
-        });
-    </script>
-    <!--<script>-->
-        <!--$('form').on('submit',function(e){-->
-            <!--debugger;-->
-            <!--e.preventDefault();-->
-            <!--$.ajax({-->
-                <!--type     : "POST",-->
-                <!--cache    : false,-->
-                <!--url      : $(this).attr('action'),-->
-                <!--data     : $(this).serialize(),-->
-                <!--success  : function(data) {-->
-                    <!--$(".printArea").empty().append(data).css('visibility','visible');-->
-                <!--}-->
-            <!--});-->
+        }
 
-        <!--});-->
-    <!--</script>-->
-    <script type="text/javascript">
+        function editTask() {
+            $('a.edit').click(function (data) {
+                var task_id = data.target.dataset.id;
+                var text = $(this).parent().text();
+                var csrftoken = Cookies.get('csrftoken');
+                $.ajax({
+                    url : "{% url 'edit_task' %}",
+                    type: "POST",
+                    data : {id: task_id,
+                            csrf_token: csrftoken
+                    },
+                    dataType: "json",
+                    success: function(data, textStatus, jqXHR)
+                    {
+                        var text = $("#edit"+data.id).parent().text();
+                        var tag = "<input value='"+text.trim()+"'/>";
+                        $('#edit'+data.id).parent().html(tag);
+                        console.log(text);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        console.log('Error');
+                    }
+                });
+            });
+        }
 
-        $('a.edit').click(function (data) {
-            var task_id = data.target.dataset.id;
-            var text = $(this).parent().text();
-            var csrftoken = Cookies.get('csrftoken');
-            $.ajax({
-                url : "{% url 'edit_task' %}",
-                type: "POST",
-                data : {id: task_id,
-                        csrf_token: csrftoken
-                },
-                dataType: "json",
-                success: function(data, textStatus, jqXHR)
-                {
-                    var text = $("#edit"+data.id).parent().text();
-                    var tag = "<input value='"+text.trim()+"'/>";
-                    $('#edit'+data.id).parent().html(tag);
-                    console.log(text);
-                },
-                error: function (jqXHR, textStatus, errorThrown)
-                {
-                    console.log('Error');
-                }
+        function deleteTask() {
+            $('a#delete').click(function (data) {
+                var task_id = data.target.dataset.id;
+                var csrftoken = Cookies.get('csrftoken');
+                $.ajax({
+                    url : "{% url 'remove_task' %}",
+                    type: "post",
+                    data : {id: task_id,
+                            csrf_token: csrftoken
+                    },
+                    success: function(data, textStatus, jqXHR)
+                    {
+                        console.log(data);
+                        $(".work-done").load("{% static 'teamwork/member_updates.html' %}" );
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        console.log('Error' + errorThrown);
+                    }
+                });
             });
+        }
+
+        function addTask() {
+            var taskAddUrl = "{% url 'add_task' date %}";
+            $("form.task-add").submit(function(ev) {
+                ev.preventDefault();
+                var form = $(this);
+                var taskContainer = form.prev('.tasks');
+                var task = form.find('input.task').val();
+                if (!task.length) return;
+                var date_str = window.location.pathname.split('/').pop();
+                $.ajax({
+                    type: "POST",
+                    url: taskAddUrl,
+                    data: form.serialize(),
+                    dataType: "json",
+                    success: function(data) {
+                        if (data.status == "success") {
+                            var elem = $('li.task-template').clone().removeClass('task-template');
+                            elem.find('span').html(task);
+                            elem.removeClass('hidden');
+                            taskContainer.find('.empty').remove();
+                            taskContainer.append(elem);
+                            form.find('input.task').val("");
+                        }
+                    },
+                });
+            });
+        }
+
+        $(function () {
+            initDatePicker();
+            addTask();
+            editTask();
+            deleteTask();
         });
     </script>
-    <script type="text/javascript">
-        $('a#delete').click(function (data) {
-            var task_id = data.target.dataset.id;
-            var csrftoken = Cookies.get('csrftoken');
-            $.ajax({
-                url : "{% url 'remove_task' %}",
-                type: "post",
-                data : {id: task_id,
-                        csrf_token: csrftoken
-                },
-                success: function(data, textStatus, jqXHR)
-                {
-                    console.log(data);
-                    $(".work-done").load("{% static 'teamwork/member_updates.html' %}" );
-                },
-                error: function (jqXHR, textStatus, errorThrown)
-                {
-                    console.log('Error' + errorThrown);
-                }
-            });
-        });
-    </script>
-    <script src="{% static 'css/bootstrap-datepicker3.css' %}"></script>
-    <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
 </body>
 
 </html>

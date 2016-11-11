@@ -30,7 +30,28 @@ def member_work_view(request, date=None):
         except ObjectDoesNotExist as e:
             print e
             summary[member] = ['No updated for today']
-    return render(request, "teamwork/base.html", {'summary': summary})
+    return render(request, "teamwork/base.html", {
+        'summary': summary, 'date': str(date)[:10]})
+
+
+@csrf_exempt
+@login_required
+def add_task(request, date):
+    if request.method != 'POST':
+        return HttpResponse(json.dumps({'status': 'method not supported'}))
+    person = None
+    _task = request.POST.get('newtask', '').strip()
+    _userid = request.POST.get('userid', '')
+    try:
+        person = TeamMember.objects.get(id=_userid)
+    except:
+        pass
+    if not person or not _task:
+        return HttpResponse(json.dumps({'status': 'error'}))
+    date = datetime.datetime.strptime(date, "%Y-%m-%d")
+    work_day, created = WorkDay.objects.get_or_create(person=person, date=date)
+    task = Task.objects.create(day=work_day, task=_task)
+    return HttpResponse(json.dumps({'status': 'success', 'taskid': task.id}))
 
 
 @csrf_exempt
