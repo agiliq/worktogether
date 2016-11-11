@@ -39,6 +39,7 @@ def member_work_view(request, date=None):
 def add_task(request, date):
     if request.method != 'POST':
         return HttpResponse(json.dumps({'status': 'method not supported'}))
+    # ToDo Make sure logged in user can add tasks for him only
     person = None
     _task = request.POST.get('newtask', '').strip()
     _userid = request.POST.get('userid', '')
@@ -55,13 +56,16 @@ def add_task(request, date):
 
 
 @csrf_exempt
+@login_required
 def delete_task(request):
-    c = {}
-    c.update(csrf(request))
-    if request.method == 'POST':
-        return HttpResponse(json.dumps({}))
-    else:
-        return redirect(reverse('date/'))
+    if request.method != 'POST':
+        return HttpResponse(json.dumps({'status': 'method not supported'}))
+    # ToDo make sure only authorized user can delete task
+    try:
+        Task.objects.get(id=request.POST.get("id", "")).delete()
+    except Task.DoesNotExist:
+        return HttpResponse(json.dumps({'status': 'error'}))
+    return HttpResponse(json.dumps({'status': 'success'}))
 
 
 @csrf_exempt

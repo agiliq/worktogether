@@ -84,26 +84,24 @@
             });
         }
 
-        function deleteTask() {
-            $('a#delete').click(function (data) {
-                var task_id = data.target.dataset.id;
-                var csrftoken = Cookies.get('csrftoken');
-                $.ajax({
-                    url : "{% url 'remove_task' %}",
-                    type: "post",
-                    data : {id: task_id,
-                            csrf_token: csrftoken
-                    },
-                    success: function(data, textStatus, jqXHR)
-                    {
-                        console.log(data);
-                        $(".work-done").load("{% static 'teamwork/member_updates.html' %}" );
-                    },
-                    error: function (jqXHR, textStatus, errorThrown)
-                    {
-                        console.log('Error' + errorThrown);
+        function deleteTask(elem) {
+            if (!elem) return;
+            var taskDeleteUrl = "{% url 'remove_task' %}";
+            var task_id = $(elem).data("id");
+            var csrftoken = Cookies.get('csrftoken');
+            $.ajax({
+                url: taskDeleteUrl,
+                type: "POST",
+                data: {
+                    id: task_id,
+                    csrf_token: csrftoken
+                },
+                dataType: "json",
+                success: function(data) {
+                    if (data.status == "success") {
+                        $(elem).parent().remove();
                     }
-                });
+                }
             });
         }
 
@@ -125,6 +123,11 @@
                         if (data.status == "success") {
                             var elem = $('li.task-template').clone().removeClass('task-template');
                             elem.find('span').html(task);
+                            elem.find('a.delete').data("id", data.taskid);
+                            elem.find('a.update').data("id", data.taskid);
+                            elem.find('a.delete').on('click', function() {
+                                deleteTask($(this));
+                            });
                             elem.removeClass('hidden');
                             taskContainer.find('.empty').remove();
                             taskContainer.append(elem);
@@ -135,11 +138,16 @@
             });
         }
 
+
         $(function () {
             initDatePicker();
             addTask();
             editTask();
-            deleteTask();
+            // deleteTask();
+            $('a.delete').click(function(ev) {
+                ev.preventDefault();
+                deleteTask($(this));
+            });
         });
     </script>
 </body>

@@ -1,7 +1,6 @@
 {% for key, value in summary.items %}
     <ul class="row">
         <h4> {{ key.name }}</h4>
-        {% if value %}
             <div class="tasks">
             {% for row in value %}
                 {% if row.task %}
@@ -22,7 +21,6 @@
                 <input type="hidden" name="userid" value="{{key.id}}">
                 <button type="submit" class="btn btn-sm btn-default">Post</button>
             </form>
-        {% endif %}
     </ul>
 {% endfor %}
 
