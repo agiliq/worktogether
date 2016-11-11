@@ -3,9 +3,16 @@ from django.contrib import admin
 from .models import TeamMember, WorkDay, Task, WorkTrackerText
 
 
-class WorkDayAdmin(admin.ModelAdmin):
+class TaskInline(admin.TabularInline):
+    model = Task
+    extra = 0
 
+
+class WorkDayAdmin(admin.ModelAdmin):
     list_display = ['date', 'person']
+    list_filter = ['person']
+    inlines = [TaskInline]
+
 
 admin.site.register(TeamMember)
 admin.site.register(WorkDay, WorkDayAdmin)

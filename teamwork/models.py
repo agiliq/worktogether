@@ -32,7 +32,8 @@ class WorkDay(models.Model):
     date = models.DateField(editable=False)
 
     def save(self, *args, **kwargs):
-        self.date = kwargs.get('date', datetime.datetime.now().date())
+        if not self.date:
+            self.date = kwargs.get('date', datetime.datetime.now().date())
         super(WorkDay, self).save(*args, **kwargs)
 
     def __unicode__(self):
