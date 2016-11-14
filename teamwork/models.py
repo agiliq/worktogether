@@ -8,12 +8,14 @@ from django.db import models
 from django.dispatch import receiver
 from django.template import Context
 from django.template.loader import get_template
+from django.contrib.auth.models import User
 from sendgrid_events.signals import sendgrid_email_received
 
 
 class TeamMember(models.Model):
     name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
+    user = models.OneToOneField(User, null=True, blank=True)
     preferred_notifying_time = models.TimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
