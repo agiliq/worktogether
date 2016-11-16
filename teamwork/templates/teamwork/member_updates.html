@@ -17,8 +17,7 @@
             {% endfor %}
             </div>
             <form class="task-add" method="post" action="." data-userid="{{key.id}}">
-                <input type="text" class="task" name="newtask" placeholder="Enter your tasks here."/>
-                <input type="hidden" name="userid" value="{{key.id}}">
+                <input type="text" class="task" name="task" placeholder="Enter your tasks here."/>
                 <button type="submit" class="btn btn-sm btn-default">Post</button>
             </form>
     </ul>

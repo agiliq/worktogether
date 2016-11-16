@@ -41,6 +41,9 @@ class WorkDay(models.Model):
     def __unicode__(self):
         return "%s, %s" % (self.person, self.date.ctime()[:10])
 
+    def get_user(self):
+        return self.person.user
+
 
 class Task(models.Model):
     day = models.ForeignKey(WorkDay)

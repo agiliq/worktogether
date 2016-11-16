@@ -1,13 +1,14 @@
 from django.conf.urls import url, include
 
 from .views import member_work_view, delete_task, edit_task, add_task
-from .views_api import WorkDayListView, TaskDetailView, TeamMemberListView
+from .views_api import WorkDayListView, TaskDetailView, TeamMemberListView, TaskCreateView
 
 
 api_patterns = [
-    url(r'^workday/(?P<date>([0-9-]*)\w*)$', WorkDayListView.as_view()),
-    url(r'^teammembers/$', TeamMemberListView.as_view()),
-    url(r'^tasks/(?P<pk>([0-9]+))$', TaskDetailView.as_view())
+    url(r'^workday/(?P<date>([0-9-]*)\w*)$', WorkDayListView.as_view(), name="workday-list"),
+    url(r'^teammembers/$', TeamMemberListView.as_view(), name="members-list"),
+    url(r'^tasks/(?P<pk>([0-9]+))$', TaskDetailView.as_view(), name="task-detail"),
+    url(r'^tasks/(?P<date>([0-9-]*))', TaskCreateView.as_view(), name="task-create")
 ]
 
 

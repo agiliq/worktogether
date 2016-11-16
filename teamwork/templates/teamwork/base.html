@@ -86,27 +86,25 @@
 
         function deleteTask(elem) {
             if (!elem) return;
-            var taskDeleteUrl = "{% url 'remove_task' %}";
+            var taskDeleteUrl = "/api/tasks/";
             var task_id = $(elem).data("id");
+            taskDeleteUrl += task_id;
             var csrftoken = Cookies.get('csrftoken');
             $.ajax({
                 url: taskDeleteUrl,
-                type: "POST",
-                data: {
-                    id: task_id,
-                    csrf_token: csrftoken
-                },
+                type: "DELETE",
                 dataType: "json",
+                headers: {
+                    "X-CSRFToken": csrftoken
+                },
                 success: function(data) {
-                    if (data.status == "success") {
-                        $(elem).parent().remove();
-                    }
+                    $(elem).parent().remove();
                 }
             });
         }
 
         function addTask() {
-            var taskAddUrl = "{% url 'add_task' date %}";
+            var taskAddUrl = "{% url 'task-create' date %}";
             $("form.task-add").submit(function(ev) {
                 ev.preventDefault();
                 var form = $(this);
@@ -114,25 +112,27 @@
                 var task = form.find('input.task').val();
                 if (!task.length) return;
                 var date_str = window.location.pathname.split('/').pop();
+                var csrftoken = Cookies.get('csrftoken');
                 $.ajax({
                     type: "POST",
                     url: taskAddUrl,
                     data: form.serialize(),
+                    headers: {
+                        "X-CSRFToken": csrftoken
+                    },
                     dataType: "json",
                     success: function(data) {
-                        if (data.status == "success") {
-                            var elem = $('li.task-template').clone().removeClass('task-template');
-                            elem.find('span').html(task);
-                            elem.find('a.delete').data("id", data.taskid);
-                            elem.find('a.update').data("id", data.taskid);
-                            elem.find('a.delete').on('click', function() {
-                                deleteTask($(this));
-                            });
-                            elem.removeClass('hidden');
-                            taskContainer.find('.empty').remove();
-                            taskContainer.append(elem);
-                            form.find('input.task').val("");
-                        }
+                        var elem = $('li.task-template').clone().removeClass('task-template');
+                        elem.find('span').html(task);
+                        elem.find('a.delete').data("id", data.id);
+                        elem.find('a.update').data("id", data.id);
+                        elem.find('a.delete').on('click', function() {
+                            deleteTask($(this));
+                        });
+                        elem.removeClass('hidden');
+                        taskContainer.find('.empty').remove();
+                        taskContainer.append(elem);
+                        form.find('input.task').val("");
                     },
                 });
             });
@@ -143,7 +143,6 @@
             initDatePicker();
             addTask();
             editTask();
-            // deleteTask();
             $('a.delete').click(function(ev) {
                 ev.preventDefault();
                 deleteTask($(this));
