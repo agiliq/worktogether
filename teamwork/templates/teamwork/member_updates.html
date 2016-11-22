@@ -1,3 +1,37 @@
+{% verbatim %}
+<div ng-controller="WorkController as wkCtrl" ng-cloak>
+    <ul class="row">
+        <h4>{{ wkCtrl.member.name | capitalize }}</h4>
+        <div class="tasks">
+            <li ng-repeat="task in wkCtrl.member.tasks">
+                <span>{{ task.task }}</span>
+                <a class="glyphicon glyphicon-pencil edit" id="edit{{ task.id }}" data-id="{{ task.id }}" href="#"></a>
+                <a class="glyphicon glyphicon-trash delete" id="delete{{ task.id}}" data-id="{{ task.id }}" href="#"></a>
+            </li>
+            <li class="empty" ng-if="wkCtrl.member.tasks.length === 0">
+                No updates for today.
+            </li>
+
+             <form novalidate class="task-add" data-userid="{{key.id}}" ng-submit="wkCtrl.addTask(newTask)">
+                <input type="text" class="task" name="task" placeholder="Enter your tasks here."/ ng-model="newTask">
+                <button type="submit" class="btn btn-sm btn-default">Post</button>
+            </form>
+        </div>
+        <div ng-repeat="mem in wkCtrl.teamWork|orderBy:'name'">
+            <h4>{{mem.name | capitalize}}</h4>
+            <li ng-repeat="task in mem.tasks">
+                <span>{{task.task}}</span>
+            </li>
+            <li class="empty" ng-if="mem.tasks.length === 0">
+                No updates for today.
+            </li>
+        </div>
+    </ul>
+</div>
+{% endverbatim %}
+
+
+{% comment %}
 {% for key, value in summary.items %}
     <ul class="row">
         <h4> {{ key.name }}</h4>
@@ -28,3 +62,4 @@
     <a class="glyphicon glyphicon-pencil edit" data-id="" href="#"></a>
     <a class="glyphicon glyphicon-trash delete" data-id="" href="#"></a>
 </li>
+{% endcomment %}
