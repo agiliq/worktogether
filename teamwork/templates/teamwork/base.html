@@ -44,8 +44,10 @@
 
     <script type="text/javascript">
         var STATICURL = "{% static '' %}";
-        var WORKDAYLISTURL = "{% url 'workday-list' '' %}";
-        var TEAMLISTURL = "{% url 'members-list' %}";
+        var WORKDAY_LISTURL = "{% url 'workday-list' '' %}";
+        var TASK_CREATEURL = "{% url 'task-create' '' %}";
+        var TASK_DETAILURL = "{% url 'task-detail' 0 %}";
+        var TEAM_LISTURL = "{% url 'members-list' %}";
         var DATE = "{{date}}";
         var CURRENT_USER_ID = "{{current_member.id}}";
     </script>

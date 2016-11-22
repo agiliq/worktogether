@@ -6,14 +6,14 @@
             <li ng-repeat="task in wkCtrl.member.tasks">
                 <span>{{ task.task }}</span>
                 <a class="glyphicon glyphicon-pencil edit" id="edit{{ task.id }}" data-id="{{ task.id }}" href="#"></a>
-                <a class="glyphicon glyphicon-trash delete" id="delete{{ task.id}}" data-id="{{ task.id }}" href="#"></a>
+                <a class="glyphicon glyphicon-trash delete" id="delete{{ task.id}}" ng-click="wkCtrl.deleteTask(task.id)" href="#"></a>
             </li>
             <li class="empty" ng-if="wkCtrl.member.tasks.length === 0">
                 No updates for today.
             </li>
 
-             <form novalidate class="task-add" data-userid="{{key.id}}" ng-submit="wkCtrl.addTask(newTask)">
-                <input type="text" class="task" name="task" placeholder="Enter your tasks here."/ ng-model="newTask">
+             <form novalidate class="task-add" data-userid="{{key.id}}" ng-submit="wkCtrl.addTask()">
+                <input type="text" class="task" name="task" placeholder="Enter your tasks here."/ ng-model="wkCtrl.newTask">
                 <button type="submit" class="btn btn-sm btn-default">Post</button>
             </form>
         </div>
