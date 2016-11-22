@@ -30,8 +30,15 @@ def member_work_view(request, date=None):
         except ObjectDoesNotExist as e:
             print e
             summary[member] = ['No updated for today']
-    return render(request, "teamwork/base.html", {
-        'summary': summary, 'date': str(date)[:10]})
+    context = {
+        'summary': summary,
+        'date': str(date)[:10]
+    }
+    try:
+        context['current_member'] = request.user.teammember
+    except:
+        pass
+    return render(request, "teamwork/base.html", context)
 
 
 @csrf_exempt

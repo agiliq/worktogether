@@ -20,9 +20,9 @@ class WorkDayListView(generics.ListAPIView):
 
     def get_queryset(self):
         date = self.kwargs.get('date', '')
-        if date:
-            return self.queryset.filter(date=date)
-        return self.queryset.all()
+        if not date:
+            date = datetime.strftime(datetime.now(), "%Y-%m-%d")
+        return self.queryset.filter(date=date)
 
 
 class TeamMemberListView(generics.ListAPIView):
