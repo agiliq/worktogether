@@ -63,104 +63,14 @@
                 format: "dd/mm/yyyy",
                 todayHighlight: true
             }).on('changeDate', function(e) {
-                console.log(e);
                 date = moment.tz(e.date, 'Asia/Kolkata');
                 date_string = date._d.toJSON().slice(0,10);
-                console.log(date_string);
                 window.location = "/date/" + date_string;
             });
         }
 
-        function editTask() {
-            $('a.edit').click(function (data) {
-                var task_id = data.target.dataset.id;
-                var text = $(this).parent().text();
-                var csrftoken = Cookies.get('csrftoken');
-                $.ajax({
-                    url : "{% url 'edit_task' %}",
-                    type: "POST",
-                    data : {id: task_id,
-                            csrf_token: csrftoken
-                    },
-                    dataType: "json",
-                    success: function(data, textStatus, jqXHR)
-                    {
-                        var text = $("#edit"+data.id).parent().text();
-                        var tag = "<input value='"+text.trim()+"'/>";
-                        $('#edit'+data.id).parent().html(tag);
-                        console.log(text);
-                    },
-                    error: function (jqXHR, textStatus, errorThrown)
-                    {
-                        console.log('Error');
-                    }
-                });
-            });
-        }
-
-        function deleteTask(elem) {
-            if (!elem) return;
-            var taskDeleteUrl = "/api/tasks/";
-            var task_id = $(elem).data("id");
-            taskDeleteUrl += task_id;
-            var csrftoken = Cookies.get('csrftoken');
-            $.ajax({
-                url: taskDeleteUrl,
-                type: "DELETE",
-                dataType: "json",
-                headers: {
-                    "X-CSRFToken": csrftoken
-                },
-                success: function(data) {
-                    $(elem).parent().remove();
-                }
-            });
-        }
-
-        // function addTask() {
-        //     var taskAddUrl = "{% url 'task-create' date %}";
-        //     $("form.task-add").submit(function(ev) {
-        //         ev.preventDefault();
-        //         var form = $(this);
-        //         var taskContainer = form.prev('.tasks');
-        //         var task = form.find('input.task').val();
-        //         if (!task.length) return;
-        //         var date_str = window.location.pathname.split('/').pop();
-        //         var csrftoken = Cookies.get('csrftoken');
-        //         $.ajax({
-        //             type: "POST",
-        //             url: taskAddUrl,
-        //             data: form.serialize(),
-        //             headers: {
-        //                 "X-CSRFToken": csrftoken
-        //             },
-        //             dataType: "json",
-        //             success: function(data) {
-        //                 var elem = $('li.task-template').clone().removeClass('task-template');
-        //                 elem.find('span').html(task);
-        //                 elem.find('a.delete').data("id", data.id);
-        //                 elem.find('a.update').data("id", data.id);
-        //                 elem.find('a.delete').on('click', function() {
-        //                     deleteTask($(this));
-        //                 });
-        //                 elem.removeClass('hidden');
-        //                 taskContainer.find('.empty').remove();
-        //                 taskContainer.append(elem);
-        //                 form.find('input.task').val("");
-        //             },
-        //         });
-        //     });
-        // }
-
-
         $(function () {
             initDatePicker();
-            // addTask();
-            editTask();
-            $('a.delete').click(function(ev) {
-                ev.preventDefault();
-                deleteTask($(this));
-            });
         });
     </script>
 </body>

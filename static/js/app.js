@@ -6,15 +6,6 @@ app.config(['$httpProvider', function($httpProvider) {
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 }]);
 
-// app.config(function($routeProvider) {
-//     $routeProvider
-//     .when('/workdone', {
-//         templateUrl: STATICURL + 'templates/worktogether.html',
-//     })
-//     .otherwise('/workdone');
-// });
-
-
 
 app.filter('capitalize', function() {
     var toTitleCase = function(str) {
@@ -28,16 +19,22 @@ app.filter('capitalize', function() {
 app.factory('WorkServices', ['$http', function($http) {
     var work = {};
     var taskAddUrl = TASK_CREATEURL+DATE;
-    var taskDetailUrl = TASK_DETAILURL;
+    var getTaskDetailUrl = function(_id) {
+        var url = TASK_DETAILURL.split("/");
+        url.pop();
+        url.push(_id);
+        return url.join("/");
+    };
     work.addTask = function(_task) {
         return $http.post(taskAddUrl, {task: _task});
     };
     work.deleteTask = function(_id) {
-        var url = TASK_DETAILURL.split("/");
-        url.pop();
-        url.push(_id);
-        url = url.join("/");
+        var url = getTaskDetailUrl(_id);
         return $http.delete(url);
+    };
+    work.updateTask = function(_id, newTask) {
+        var url = getTaskDetailUrl(_id);
+        return $http.put(url, {id: _id, task: newTask});
     };
     return work;
 }]);
@@ -92,6 +89,18 @@ app.controller('WorkController', ['$http', '$q', '$filter', 'WorkServices',
             workServices.deleteTask(_id).then(function(){
                 self.member.tasks = $filter('filter')(self.member.tasks, {id: '!'+_id});
             });
+        };
+
+        self.updateTask = function(_id, update) {
+            var failed = true;
+            if (!update.trim().length) return failed;
+            workServices.updateTask(_id, update).then(function(){
+                angular.forEach(self.member.tasks, function(task, idx) {
+                    if (task.id == _id) task.task = update;
+                });
+                return !failed;
+            });
+
         };
     }
 ]);

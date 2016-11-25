@@ -3,16 +3,23 @@
     <ul class="row">
         <h4>{{ wkCtrl.member.name | capitalize }}</h4>
         <div class="tasks">
-            <li ng-repeat="task in wkCtrl.member.tasks">
-                <span>{{ task.task }}</span>
-                <a class="glyphicon glyphicon-pencil edit" id="edit{{ task.id }}" data-id="{{ task.id }}" href="#"></a>
-                <a class="glyphicon glyphicon-trash delete" id="delete{{ task.id}}" ng-click="wkCtrl.deleteTask(task.id)" href="#"></a>
+            <li ng-repeat="task in wkCtrl.member.tasks|orderBy:'id'" ng-init="editing=false">
+                <div ng-hide="editing">
+                    <span>{{ task.task }}</span>
+                    <a class="glyphicon glyphicon-pencil edit" id="edit{{ task.id }}" ng-click="editing=true" href="#"></a>
+                    <a class="glyphicon glyphicon-trash delete" id="delete{{ task.id}}" ng-click="wkCtrl.deleteTask(task.id)" href="#"></a>
+                </div>
+                <form novalidate ng-show="editing">
+                    <input type="text" ng-model="newtask" ng-init="newtask=task.task">
+                    <a class="glyphicon glyphicon-ok" ng-click="editing = wkCtrl.updateTask(task.id, newtask)"></a>
+                    <a class="glyphicon glyphicon-remove" ng-click="newtask=task.task; editing=false"></a>
+                </form>
             </li>
             <li class="empty" ng-if="wkCtrl.member.tasks.length === 0">
                 No updates for today.
             </li>
 
-             <form novalidate class="task-add" data-userid="{{key.id}}" ng-submit="wkCtrl.addTask()">
+             <form novalidate class="task-add" ng-submit="wkCtrl.addTask()">
                 <input type="text" class="task" name="task" placeholder="Enter your tasks here."/ ng-model="wkCtrl.newTask">
                 <button type="submit" class="btn btn-sm btn-default">Post</button>
             </form>
@@ -29,37 +36,3 @@
     </ul>
 </div>
 {% endverbatim %}
-
-
-{% comment %}
-{% for key, value in summary.items %}
-    <ul class="row">
-        <h4> {{ key.name }}</h4>
-            <div class="tasks">
-            {% for row in value %}
-                {% if row.task %}
-                <li>
-                    <span>{{ row.task }}</span>
-                    <a class="glyphicon glyphicon-pencil edit" id="edit{{ row.id }}" data-id="{{ row.id }}" href="#"></a>
-                    <a class="glyphicon glyphicon-trash delete" id="delete{{ row.id}}" data-id="{{ row.id }}" href="#"></a>
-                </li>
-                {% else %}
-                <li class="empty">
-                    No updates for today.
-                </li>
-                {% endif %}
-            {% endfor %}
-            </div>
-            <form class="task-add" method="post" action="." data-userid="{{key.id}}">
-                <input type="text" class="task" name="task" placeholder="Enter your tasks here."/>
-                <button type="submit" class="btn btn-sm btn-default">Post</button>
-            </form>
-    </ul>
-{% endfor %}
-
-<li class="hidden task-template">
-    <span></span>
-    <a class="glyphicon glyphicon-pencil edit" data-id="" href="#"></a>
-    <a class="glyphicon glyphicon-trash delete" data-id="" href="#"></a>
-</li>
-{% endcomment %}
