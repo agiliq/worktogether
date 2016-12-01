@@ -13,22 +13,19 @@
     <link rel="stylesheet" href="{% static 'css/default.css' %}">
 
 </head>
-
 <body>
-    <h1>{{ "%s"|stringformat:'15' }}</h1>
+    {% include 'navbar.html' %}
 
-    <div style="overflow">
-        <div class="form-group">
-            <div class="row">
-                <div class="col-md-2">
-                    <div id="datepicker"></div>
-                </div>
-                <div class="col-md-10 work-done" ng-app="worktogether">
-                    {% include 'teamwork/member_updates.html' with summary=summary %}
-                </div>
-            </div>
+    <div class="row">
+        <div class="col-md-3 ">
+            <div id="datepicker"></div>
+        </div>
+        <div class="col-md-6 work-done" ng-app="worktogether">
+            <h2>{{ date|date:'l, F d' }}</h2>
+            {% include 'teamwork/member_updates.html' with summary=summary %}
         </div>
     </div>
+
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="{% static 'js/jquery.min.js' %}"></script>
@@ -48,8 +45,9 @@
         var TASK_CREATEURL = "{% url 'task-create' '' %}";
         var TASK_DETAILURL = "{% url 'task-detail' 0 %}";
         var TEAM_LISTURL = "{% url 'members-list' %}";
-        var DATE = "{{date}}";
+        var DATE = "{{ date|date:'Y-m-d' }}";
         var CURRENT_USER_ID = "{{current_member.id}}";
+        var DAY_SUMMARY_BASEURL = "{% url 'day_summary' '' %}";
     </script>
 
     <script type="text/javascript">
@@ -61,11 +59,11 @@
                 viewDate: true,
                 locale: 'in',
                 format: "dd/mm/yyyy",
-                todayHighlight: true
+                todayHighlight: true,
             }).on('changeDate', function(e) {
                 date = moment.tz(e.date, 'Asia/Kolkata');
                 date_string = date._d.toJSON().slice(0,10);
-                window.location = "/date/" + date_string;
+                window.location = DAY_SUMMARY_BASEURL + date_string;
             });
         }
 

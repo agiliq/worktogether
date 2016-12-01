@@ -29,7 +29,7 @@ def member_work_view(request, date=None):
             summary[member] = ['No updated for today']
     context = {
         'summary': summary,
-        'date': str(date)[:10]
+        'date': date
     }
     try:
         context['current_member'] = request.user.teammember
