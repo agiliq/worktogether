@@ -7,6 +7,6 @@ install:
 - pip install -r requirements/base.txt
 
 script:
-- pep8 teamwork
+- pep8 --exclude=migrations teamwork
 - pep8 worktogether
 - pyflakes teamwork

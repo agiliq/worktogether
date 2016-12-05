@@ -1,6 +1,7 @@
 from datetime import datetime
 from .models import WorkDay, TeamMember, Task
-from .serializers import WorkDaySerializer, TeamMemberSerializer, TaskSerializer
+from .serializers import (WorkDaySerializer, TeamMemberSerializer,
+                          TaskSerializer)
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.serializers import ValidationError

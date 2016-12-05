@@ -11,7 +11,8 @@ class TaskSerializer(serializers.ModelSerializer):
         task = validated_data['task'].strip()
         person = validated_data['person']
         date = validated_data['date']
-        work_day, created = WorkDay.objects.get_or_create(person=person, date=date)
+        work_day, created = WorkDay.objects.get_or_create(
+            person=person, date=date)
         task = Task.objects.create(day=work_day, task=task)
         return task
 
