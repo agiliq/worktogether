@@ -1,6 +1,6 @@
 {% verbatim %}
 <div ng-controller="WorkController as wkCtrl" ng-cloak>
-    <div class="tasklist">
+    <div class="tasklist" ng-if="!(wkCtrl.member|isEmpty)">
         <h3>{{ wkCtrl.member.name | capitalize }}</h3>
         <ul>
             <li ng-repeat="task in wkCtrl.member.tasks|orderBy:'id'" ng-init="editing=false">
