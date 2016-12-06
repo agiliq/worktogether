@@ -1,6 +1,6 @@
 from django.conf.urls import url, include
 
-from .views import member_work_view
+from .views import member_work_view, MemberWorkListView
 from .views_api import (WorkDayListView, TaskDetailView,
                         TeamMemberListView, TaskCreateView)
 
@@ -20,5 +20,6 @@ api_patterns = [
 urlpatterns = [
     url(r'^date/(?P<date>([0-9-]*)\w*)$',
         member_work_view, name='day_summary'),
+    url(r'^day$', MemberWorkListView.as_view(), name='day-details'),
     url(r'api/', include(api_patterns))
 ]

@@ -1,0 +1,38 @@
+<h2>{{ wkCtrl.date|date:'EEEE, MMMM d' }}</h2>
+<div ng-cloak>
+    <div class="tasklist" ng-if="!(wkCtrl.member|isEmpty)">
+        <h3>{{ wkCtrl.member.name | capitalize }}</h3>
+        <ul>
+            <li ng-repeat="task in wkCtrl.member.tasks|orderBy:'id'" ng-init="editing=false">
+                <div ng-hide="editing">
+                    <span class="tasktext">{{ task.task }}</span>
+                    <a class="glyphicon glyphicon-pencil taskaction" id="edit{{ task.id }}" ng-click="editing=true"></a>
+                    <a class="glyphicon glyphicon-trash taskaction" id="delete{{ task.id}}" ng-click="wkCtrl.deleteTask(task.id)"></a>
+                </div>
+                <form novalidate ng-show="editing">
+                    <input type="text" ng-model="newtask" ng-init="newtask=task.task">
+                    <a class="glyphicon glyphicon-ok taskaction" ng-click="editing = wkCtrl.updateTask(task.id, newtask)"></a>
+                    <a class="glyphicon glyphicon-remove taskaction" ng-click="newtask=task.task; editing=false"></a>
+                </form>
+            </li>
+            <li class="empty" ng-if="wkCtrl.member.tasks.length === 0">
+                No updates for today.
+            </li>
+        </ul>
+        <form novalidate class="task-add" ng-submit="wkCtrl.addTask()">
+            <input type="text" class="task" name="task" placeholder="Enter your tasks here."/ ng-model="wkCtrl.newTask">
+            <button type="submit" class="btn btn-sm btn-default">Post</button>
+        </form>
+    </div>
+    <div class="tasklist" ng-repeat="mem in wkCtrl.teamWork|orderBy:'name'">
+        <h3>{{mem.name | capitalize}}</h3>
+        <ul>
+            <li ng-repeat="task in mem.tasks" class="list">
+                <span>{{task.task}}</span>
+            </li>
+            <li class="empty" ng-if="mem.tasks.length === 0">
+                No updates for today.
+            </li>
+        </ul>
+    </div>
+</div>

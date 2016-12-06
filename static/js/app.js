@@ -1,11 +1,27 @@
 (function() {
 
-angular.module('worktogether', [])
+angular.module('worktogether', ['ngRoute'])
 .filter('capitalize', CapitalizeFilter)
 .filter('isEmpty', CheckEmptyFilter)
 .factory('WorkServices', WorkServices)
 .controller('WorkController', WorkController)
-.config(Config);
+.config(Config)
+.config(RouteConfig);
+
+RouteConfig.$inject = ['$routeProvider'];
+function RouteConfig($routeProvider) {
+    $routeProvider
+    .when('/:date',
+        {
+            templateUrl: STATICURL + "templates/member.html",
+            controller: "WorkController",
+            controllerAs: "wkCtrl"
+        }
+    )
+    .otherwise({
+        redirectTo: '/'+DATE
+    });
+}
 
 Config.$inject = ['$httpProvider'];
 function Config($httpProvider) {
@@ -31,9 +47,7 @@ function CheckEmptyFilter() {
 WorkServices.$inject = ['$http'];
 function WorkServices($http) {
     var work = {};
-    var taskAddUrl = TASK_CREATEURL+DATE;
     var teamUrl = TEAM_LISTURL;
-    var workDayUrl = WORKDAY_LISTURL+DATE;
 
     var getTaskDetailUrl = function(_id) {
         var url = TASK_DETAILURL.split("/");
@@ -42,7 +56,8 @@ function WorkServices($http) {
         return url.join("/");
     };
 
-    work.getWorkDayData = function() {
+    work.getWorkDayData = function(date) {
+        var workDayUrl = WORKDAY_LISTURL+date;
         return $http.get(workDayUrl);
     };
 
@@ -50,7 +65,8 @@ function WorkServices($http) {
         return $http.get(teamUrl);
     };
 
-    work.addTask = function(_task) {
+    work.addTask = function(date, _task) {
+        var taskAddUrl = TASK_CREATEURL+date;
         return $http.post(taskAddUrl, {task: _task});
     };
     work.deleteTask = function(_id) {
@@ -64,17 +80,18 @@ function WorkServices($http) {
     return work;
 }
 
-WorkController.$inject = ['$q', '$filter', 'WorkServices'];
-function WorkController($q, $filter, workServices) {
+WorkController.$inject = ['$q', '$filter', '$routeParams', 'WorkServices'];
+function WorkController($q, $filter, $routeParams, workServices) {
     var memberId = parseInt(CURRENT_USER_ID);
     var self = this;
     var team = {};
     self.member = {};
     self.teamWork = [];
     self.newTask = "";
+    self.date = $routeParams.date;
 
     var teamData = workServices.getTeamData();
-    var workDayData = workServices.getWorkDayData();
+    var workDayData = workServices.getWorkDayData(self.date);
 
     teamData.then(function(response) {
         angular.forEach(response.data, function(ele, idx) {
@@ -105,7 +122,7 @@ function WorkController($q, $filter, workServices) {
 
     self.addTask = function() {
         if (!self.newTask) return;
-        workServices.addTask(self.newTask).then(function(resp) {
+        workServices.addTask(self.date, self.newTask).then(function(resp) {
             self.member.tasks.push(resp.data);
             self.newTask = '';
         });

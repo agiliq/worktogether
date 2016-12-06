@@ -21,8 +21,9 @@
             <div id="datepicker"></div>
         </div>
         <div class="col-md-6 work-done" ng-app="worktogether">
-            <h2>{{ date|date:'l, F d' }}</h2>
-            {% include 'teamwork/member_updates.html' with summary=summary %}
+            {% verbatim %}
+            <ng-view></ng-view>
+            {% endverbatim %}
         </div>
     </div>
 
@@ -47,7 +48,6 @@
         var TEAM_LISTURL = "{% url 'members-list' %}";
         var DATE = "{{ date|date:'Y-m-d' }}";
         var CURRENT_USER_ID = "{{current_member.id}}";
-        var DAY_SUMMARY_BASEURL = "{% url 'day_summary' '' %}";
     </script>
 
     <script type="text/javascript">
@@ -63,7 +63,7 @@
             }).on('changeDate', function(e) {
                 date = moment.tz(e.date, 'Asia/Kolkata');
                 date_string = date._d.toJSON().slice(0,10);
-                window.location = DAY_SUMMARY_BASEURL + date_string;
+                document.location.href = "#/"+date_string;
             });
         }
 

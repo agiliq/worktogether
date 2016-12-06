@@ -17,6 +17,11 @@
     min-width: 60%;
 }
 
+a.taskaction {
+    margin: 0px 2px;
+    cursor: pointer;
+}
+
 #datepicker {
     padding-left: 5%;
 }
