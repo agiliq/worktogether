@@ -13,18 +13,12 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <!-- Link Left
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Link</a></li>
-      </ul>
-      -->
       <ul class="nav navbar-nav navbar-right">
         {% if user.is_authenticated %}
         <li><a href="#">{{user.username}}</a></li>
         <li><a class="glyphicon glyphicon-off" href="{% url 'logout' %}"></a></li>
         {% endif %}
       </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+    </div>
+  </div>
 </nav>

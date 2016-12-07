@@ -5,7 +5,7 @@ angular.module('worktogether', ['ngRoute'])
 .filter('isEmpty', CheckEmptyFilter)
 .factory('WorkServices', WorkServices)
 .controller('WorkController', WorkController)
-.config(Config)
+.config(CsrfConfig)
 .config(RouteConfig);
 
 RouteConfig.$inject = ['$routeProvider'];
@@ -23,8 +23,8 @@ function RouteConfig($routeProvider) {
     });
 }
 
-Config.$inject = ['$httpProvider'];
-function Config($httpProvider) {
+CsrfConfig.$inject = ['$httpProvider'];
+function CsrfConfig($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 }

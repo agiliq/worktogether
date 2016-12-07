@@ -6,8 +6,8 @@
             <li ng-repeat="task in wkCtrl.member.tasks|orderBy:'id'" ng-init="editing=false">
                 <div ng-hide="editing">
                     <span class="tasktext">{{ task.task }}</span>
-                    <a class="glyphicon glyphicon-pencil taskaction" id="edit{{ task.id }}" ng-click="editing=true"></a>
-                    <a class="glyphicon glyphicon-trash taskaction" id="delete{{ task.id}}" ng-click="wkCtrl.deleteTask(task.id)"></a>
+                    <a class="glyphicon glyphicon-pencil taskaction" ng-click="editing=true"></a>
+                    <a class="glyphicon glyphicon-trash taskaction" ng-click="wkCtrl.deleteTask(task.id)"></a>
                 </div>
                 <form novalidate ng-show="editing">
                     <input type="text" ng-model="newtask" ng-init="newtask=task.task">
