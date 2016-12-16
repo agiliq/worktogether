@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url('^accounts/', include('django.contrib.auth.urls')),
     url(r'^teamwork/', include('teamwork.urls')),
-    url(r'^$', RedirectView.as_view(url='/teamwork/day'))
+    url(r'^$', RedirectView.as_view(url='/teamwork/day', permanent=False))
 ]
 
 urlpatterns += patterns('',
