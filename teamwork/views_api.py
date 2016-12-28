@@ -1,10 +1,13 @@
 from datetime import datetime
+from django.db.models import Count
 from .models import WorkDay, TeamMember, Task
 from .serializers import (WorkDaySerializer, TeamMemberSerializer,
                           TaskSerializer)
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.serializers import ValidationError
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -62,3 +65,16 @@ class TaskCreateView(generics.CreateAPIView):
         if errors:
             raise ValidationError(errors)
         serializer.save(person=person, date=date)
+
+
+class HeatMapList(APIView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, format=None):
+        teammember = request.user.teammember
+        workdays = WorkDay.objects.filter(
+            person=teammember).annotate(task_count=Count('task'))
+        data = {}
+        for wk in workdays:
+            data[str(wk.get_date_inseconds())] = wk.task_count
+        return Response(data)

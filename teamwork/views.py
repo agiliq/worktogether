@@ -55,3 +55,7 @@ class MemberWorkListView(TemplateView):
         except:
             pass
         return context
+
+
+class UserProfileView(TemplateView):
+    template_name = "teamwork/profile.html"

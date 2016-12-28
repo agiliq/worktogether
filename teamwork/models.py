@@ -1,4 +1,5 @@
 import datetime
+import time
 import pytz
 
 from django.conf import settings
@@ -43,6 +44,9 @@ class WorkDay(models.Model):
 
     def get_user(self):
         return self.person.user
+
+    def get_date_inseconds(self):
+        return time.mktime(self.date.timetuple()) if self.date else 0
 
 
 class Task(models.Model):
