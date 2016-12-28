@@ -1,27 +1,9 @@
 (function() {
 
 angular.module('worktogether', ['ngRoute'])
-.filter('capitalize', CapitalizeFilter)
-.filter('isEmpty', CheckEmptyFilter)
-.factory('WorkServices', WorkServices)
 .controller('WorkController', WorkController)
-.config(CsrfConfig)
-.config(RouteConfig);
+.config(CsrfConfig);
 
-RouteConfig.$inject = ['$routeProvider'];
-function RouteConfig($routeProvider) {
-    $routeProvider
-    .when('/:date',
-        {
-            templateUrl: STATICURL + "templates/member.html",
-            controller: "WorkController",
-            controllerAs: "wkCtrl"
-        }
-    )
-    .otherwise({
-        redirectTo: '/'+DATE
-    });
-}
 
 CsrfConfig.$inject = ['$httpProvider'];
 function CsrfConfig($httpProvider) {
@@ -29,56 +11,7 @@ function CsrfConfig($httpProvider) {
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 }
 
-function CapitalizeFilter() {
-    var toTitleCase = function(str) {
-        return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-    };
-    return function(input) {
-        return (!!input) ? toTitleCase(input) : '';
-    };
-}
 
-function CheckEmptyFilter() {
-    return function(obj) {
-        return angular.equals({}, obj);
-    };
-}
-
-WorkServices.$inject = ['$http'];
-function WorkServices($http) {
-    var work = {};
-    var teamUrl = TEAM_LISTURL;
-
-    var getTaskDetailUrl = function(_id) {
-        var url = TASK_DETAILURL.split("/");
-        url.pop();
-        url.push(_id);
-        return url.join("/");
-    };
-
-    work.getWorkDayData = function(date) {
-        var workDayUrl = WORKDAY_LISTURL+date;
-        return $http.get(workDayUrl);
-    };
-
-    work.getTeamData = function() {
-        return $http.get(teamUrl);
-    };
-
-    work.addTask = function(date, _task) {
-        var taskAddUrl = TASK_CREATEURL+date;
-        return $http.post(taskAddUrl, {task: _task});
-    };
-    work.deleteTask = function(_id) {
-        var url = getTaskDetailUrl(_id);
-        return $http.delete(url);
-    };
-    work.updateTask = function(_id, newTask) {
-        var url = getTaskDetailUrl(_id);
-        return $http.put(url, {id: _id, task: newTask});
-    };
-    return work;
-}
 
 WorkController.$inject = ['$q', '$filter', '$routeParams', 'WorkServices'];
 function WorkController($q, $filter, $routeParams, workServices) {
