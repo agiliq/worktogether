@@ -3,18 +3,18 @@
     .config(RouteConfig);
 
 
-    RouteConfig.$inject = ['$routeProvider'];
-    function RouteConfig($routeProvider) {
+    RouteConfig.$inject = ['$routeProvider', 'workConfig'];
+    function RouteConfig($routeProvider, workConfig) {
         $routeProvider
         .when('/:date',
             {
-                templateUrl: STATICURL + "js/worktogether/templates/member.html",
+                templateUrl: workConfig.urls.static + "js/worktogether/templates/member.html",
                 controller: "WorkController",
                 controllerAs: "wkCtrl"
             }
         )
         .otherwise({
-            redirectTo: '/'+DATE
+            redirectTo: '/'+workConfig.date
         });
     }
 

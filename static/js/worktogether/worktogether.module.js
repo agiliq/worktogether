@@ -2,7 +2,18 @@
 
 angular.module('worktogether', ['ngRoute'])
 .controller('WorkController', WorkController)
-.config(CsrfConfig);
+.config(CsrfConfig)
+.constant("workConfig", {
+    "urls": {
+        "static": STATICURL,
+        "workdayList": WORKDAY_LISTURL,
+        "taskCreate": TASK_CREATEURL,
+        "taskDetail": TASK_DETAILURL,
+        "teamList": TEAM_LISTURL
+    },
+    "date": DATE,
+    "userID": CURRENT_USER_ID
+});
 
 
 CsrfConfig.$inject = ['$httpProvider'];
@@ -13,9 +24,9 @@ function CsrfConfig($httpProvider) {
 
 
 
-WorkController.$inject = ['$q', '$filter', '$routeParams', 'WorkServices'];
-function WorkController($q, $filter, $routeParams, workServices) {
-    var memberId = parseInt(CURRENT_USER_ID);
+WorkController.$inject = ['$q', '$filter', '$routeParams', 'WorkServices', 'workConfig'];
+function WorkController($q, $filter, $routeParams, workServices, workConfig) {
+    var memberId = parseInt(workConfig.userID);
     var self = this;
     var team = {};
     self.member = {};

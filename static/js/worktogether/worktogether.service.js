@@ -3,30 +3,28 @@
     angular.module('worktogether')
     .factory('WorkServices', WorkServices);
 
-
-    WorkServices.$inject = ['$http'];
-    function WorkServices($http) {
+    WorkServices.$inject = ['$http', 'workConfig'];
+    function WorkServices($http, workConfig) {
         var work = {};
-        var teamUrl = TEAM_LISTURL;
 
         var getTaskDetailUrl = function(_id) {
-            var url = TASK_DETAILURL.split("/");
+            var url = workConfig.urls.taskDetail.split("/");
             url.pop();
             url.push(_id);
             return url.join("/");
         };
 
         work.getWorkDayData = function(date) {
-            var workDayUrl = WORKDAY_LISTURL+date;
+            var workDayUrl = workConfig.urls.workdayList+date;
             return $http.get(workDayUrl);
         };
 
         work.getTeamData = function() {
-            return $http.get(teamUrl);
+            return $http.get(workConfig.urls.teamList);
         };
 
         work.addTask = function(date, _task) {
-            var taskAddUrl = TASK_CREATEURL+date;
+            var taskAddUrl = workConfig.urls.taskCreate+date;
             return $http.post(taskAddUrl, {task: _task});
         };
         work.deleteTask = function(_id) {
@@ -39,6 +37,4 @@
         };
         return work;
     }
-    
-
 })();
