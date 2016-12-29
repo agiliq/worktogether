@@ -36,11 +36,11 @@ def member_work_view(request, date=None):
         context['current_member'] = request.user.teammember
     except:
         pass
-    return render(request, "teamwork/base.html", context)
+    return render(request, "teamwork/home.html", context)
 
 
 class MemberWorkListView(TemplateView):
-    template_name = "teamwork/base.html"
+    template_name = "teamwork/home.html"
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

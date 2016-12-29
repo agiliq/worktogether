@@ -23,7 +23,7 @@ class TeamWorkTests(APITestCase):
 
     def test_createtask(self):
         _task = 'Test Task'
-        member = create_teammember(self.user)
+        create_teammember(self.user)
         self.client.login(username='test', password='test')
         url = reverse('task-create', args=['2016-12-15'])
         self.assertEqual(Task.objects.count(), 0)

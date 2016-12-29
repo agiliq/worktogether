@@ -71,10 +71,14 @@ class HeatMapList(APIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get(self, request, format=None):
-        teammember = request.user.teammember
+        data = {}
+        try:
+            teammember = request.user.teammember
+        except Exception as e:
+            print e
+            return Response(data)
         workdays = WorkDay.objects.filter(
             person=teammember).annotate(task_count=Count('task'))
-        data = {}
         for wk in workdays:
             data[str(wk.get_date_inseconds())] = wk.task_count
         return Response(data)
