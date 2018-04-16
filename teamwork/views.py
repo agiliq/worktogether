@@ -1,13 +1,11 @@
 import datetime
-import json
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.context_processors import csrf
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+from django.views.generic import TemplateView
+from django.utils.decorators import method_decorator
 
 from .models import TeamMember, WorkDay, Task
 
@@ -30,24 +28,34 @@ def member_work_view(request, date=None):
         except ObjectDoesNotExist as e:
             print e
             summary[member] = ['No updated for today']
-    return render(request, "teamwork/base.html", {'summary': summary})
+    context = {
+        'summary': summary,
+        'date': date
+    }
+    try:
+        context['current_member'] = request.user.teammember
+    except:
+        pass
+    return render(request, "teamwork/home.html", context)
 
 
-@csrf_exempt
-def delete_task(request):
-    c = {}
-    c.update(csrf(request))
-    if request.method == 'POST':
-        return HttpResponse(json.dumps({}))
-    else:
-        return redirect(reverse('date/'))
+class MemberWorkListView(TemplateView):
+    template_name = "teamwork/home.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(MemberWorkListView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MemberWorkListView, self).get_context_data(**kwargs)
+        today = datetime.datetime.now().date()
+        context['date'] = today
+        try:
+            context['current_member'] = self.request.user.teammember
+        except:
+            pass
+        return context
 
 
-@csrf_exempt
-def edit_task(request):
-    c = {}
-    c.update(csrf(request))
-    if request.method == 'POST':
-        return HttpResponse(json.dumps({}))
-    else:
-        return redirect(reverse('date/'))
+class UserProfileView(TemplateView):
+    template_name = "teamwork/profile.html"

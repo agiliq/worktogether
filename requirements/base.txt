@@ -6,3 +6,6 @@ pep8==1.5.7
 psycopg2==2.5.4
 pyflakes==0.8.1
 SQLAlchemy==1.0.14
+django-filter==0.15.3
+djangorestframework==3.5.3
+Markdown==2.6.7

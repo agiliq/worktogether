@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            Your username and password didn't match. Please try again.
+        </div>
+    {% endif %}
+    {% if next %}
+        <div class="alert alert-info" role="alert">
+            {% if user.is_authenticated %}
+            <span>Your account doesn't have access to this page. To proceed,
+            please login with an account that has access.</span>
+            {% else %}
+            <span>Please login to see this page.</span>
+            {% endif %}
+        </div>
+    {% endif %}
+    </div>
+    <div class="col-md-4 col-md-offset-4">
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_username">{{ form.username.label_tag }}</label>
+            <input type="text" class="form-control" id="id_username" name="username" placeholder="Username">
+        </div>
+        <div class="form-group">
+            <label for="id_password">Password</label>
+            <input id="id_password" class="form-control" name="password" type="password" placeholder="Password">
+        </div>
+        <button type="submit" class="btn btn-default">Login</button>
+        <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+    </div>
+</div>
+{% endblock %}
+

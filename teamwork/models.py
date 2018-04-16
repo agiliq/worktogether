@@ -1,4 +1,5 @@
 import datetime
+import time
 import pytz
 
 from django.conf import settings
@@ -8,16 +9,18 @@ from django.db import models
 from django.dispatch import receiver
 from django.template import Context
 from django.template.loader import get_template
+from django.contrib.auth.models import User
 from sendgrid_events.signals import sendgrid_email_received
 
 
 class TeamMember(models.Model):
     name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
+    user = models.OneToOneField(User, null=True, blank=True)
     preferred_notifying_time = models.TimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk:
+        if not self.preferred_notifying_time:
             time_ = datetime.time(18, 10,
                                   tzinfo=pytz.timezone(settings.TIME_ZONE))
             self.preferred_notifying_time = time_
@@ -32,11 +35,18 @@ class WorkDay(models.Model):
     date = models.DateField(editable=False)
 
     def save(self, *args, **kwargs):
-        self.date = kwargs.get('date', datetime.datetime.now().date())
+        if not self.date:
+            self.date = kwargs.get('date', datetime.datetime.now().date())
         super(WorkDay, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return "%s, %s" % (self.person, self.date.ctime()[:10])
+
+    def get_user(self):
+        return self.person.user
+
+    def get_date_inseconds(self):
+        return time.mktime(self.date.timetuple()) if self.date else 0
 
 
 class Task(models.Model):

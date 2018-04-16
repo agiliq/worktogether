@@ -1,0 +1,68 @@
+{% extends 'teamwork/base.html' %}
+{% load static %}
+
+{% block extrahead %}{% endblock %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3 ">
+            <div id="datepicker"></div>
+        </div>
+        <div class="col-md-6 work-done" ng-app="worktogether">
+            {% verbatim %}
+            <ng-view></ng-view>
+            {% endverbatim %}
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block extrascript %}
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular-route.js"></script>
+
+    <script type="text/javascript">
+        var STATICURL = "{% static '' %}";
+        var WORKDAY_LISTURL = "{% url 'workday-list' '' %}";
+        var TASK_CREATEURL = "{% url 'task-create' '' %}";
+        var TASK_DETAILURL = "{% url 'task-detail' 0 %}";
+        var TEAM_LISTURL = "{% url 'members-list' %}";
+        var DATE = "{{ date|date:'Y-m-d' }}";
+        var CURRENT_USER_ID = "{{current_member.id}}";
+    </script>
+
+    <script src='{% static "js/worktogether/worktogether.module.js" %}'></script>
+    <script src='{% static "js/worktogether/worktogether.service.js" %}'></script>
+    <script src='{% static "js/worktogether/worktogether.filter.js" %}'></script>
+    <script src='{% static "js/worktogether/routes.js" %}'></script>
+
+
+
+    <script type="text/javascript">
+        function initDatePicker() {
+            moment().tz("America/Los_Angeles").format();
+            $('#datepicker').datepicker({
+                inline: true,
+                sideBySide: true,
+                viewDate: true,
+                locale: 'in',
+                format: "dd/mm/yyyy",
+                todayHighlight: true,
+            }).on('changeDate', function(e) {
+                date = moment.tz(e.date, 'Asia/Kolkata');
+                date_string = date._d.toJSON().slice(0,10);
+                document.location.href = "#/"+date_string;
+            });
+        }
+
+        $(function () {
+            initDatePicker();
+        });
+    </script>
+
+
+{% endblock %}
+

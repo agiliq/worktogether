@@ -1,0 +1,54 @@
+{% extends 'teamwork/base.html' %}
+{% load static %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="//cdn.jsdelivr.net/cal-heatmap/3.3.10/cal-heatmap.css" />
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <div id="cal-heatmap"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+    <script type="text/javascript" src="//d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/cal-heatmap/3.3.10/cal-heatmap.min.js"></script>
+    <script type="text/javascript">
+        function dateToString(date) {
+            var mm = date.getMonth() + 1; // getMonth() is zero-based
+            var dd = date.getDate();
+
+            return [date.getFullYear(),
+                (mm>9 ? '' : '0') + mm,
+                (dd>9 ? '' : '0') + dd
+            ].join('-');
+        }
+        var d = new Date();
+        var dataSourceUrl = "{% url 'task-heatmap' %}";
+        var dayDetailUrl = "{% url 'day-details' %}";
+        d.setMonth(d.getMonth() - 10);
+        var cal = new CalHeatMap();
+        cal.init({
+            itemSelector: "#cal-heatmap",
+            domain: "month",
+            subDomain: "day",
+            range: 12,
+            start: d,
+            legend: [2,4,6,8],
+            cellSize: 12,
+            domainGutter: 0,
+            highlight: "now",
+            data: dataSourceUrl,
+            onClick: function(date, value) {
+                document.location.href = dayDetailUrl + "#/" + dateToString(date);
+            }
+        });
+    </script>
+
+{% endblock %}

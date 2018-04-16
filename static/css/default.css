@@ -1,0 +1,27 @@
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+.tasklist ul {
+    padding-left: 0px;
+}
+
+.tasklist ul li {
+    list-style: none;
+    min-height: 30px;
+    line-height: 30px;
+}
+
+.tasklist input {
+    height: 30px;
+    min-width: 60%;
+}
+
+a.taskaction {
+    margin: 0px 2px;
+    cursor: pointer;
+}
+
+#datepicker {
+    padding-left: 5%;
+}
